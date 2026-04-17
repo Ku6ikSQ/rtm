@@ -1,0 +1,58 @@
+# ========================
+# Secrets
+# ========================
+.env
+
+# ========================
+# Backend (Maven / Java)
+# ========================
+backend/target/
+backend/.mvn/wrapper/maven-wrapper.jar
+backend/*.iml
+
+# ========================
+# Frontend (Node / Vite)
+# ========================
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+frontend/.eslintcache
+frontend/*.tsbuildinfo
+
+# ========================
+# IDE
+# ========================
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+*.swp
+*.swo
+*~
+
+# ========================
+# OS
+# ========================
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ========================
+# Docker
+# ========================
+# Не игнорировать docker-compose файлы — они нужны в репозитории
+
+# ========================
+# Obsidian
+# ========================
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+.obsidian/cache
+.obsidian
+
+# ========================
+# Misc
+# ========================
+out
+docs
