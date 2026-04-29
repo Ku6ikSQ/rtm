@@ -1,6 +1,6 @@
 package com.ttkhnvv.rtm.security;
 
-import com.ttkhnvv.rtm.repository.UserRepository;
+import com.ttkhnvv.rtm.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
