@@ -2,6 +2,8 @@ package com.ttkhnvv.rtm.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.JdbcType;
+import org.hibernate.dialect.type.PostgreSQLEnumJdbcType;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -28,6 +30,7 @@ public class User {
     private String passwordHash;
 
     @Enumerated(EnumType.STRING)
+    @JdbcType(PostgreSQLEnumJdbcType.class)
     @Column(name = "role", nullable = false)
     private UserRole role;
 
