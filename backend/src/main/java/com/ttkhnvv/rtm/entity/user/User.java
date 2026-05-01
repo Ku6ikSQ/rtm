@@ -1,4 +1,4 @@
-package com.ttkhnvv.rtm.entity;
+package com.ttkhnvv.rtm.entity.user;
 
 import jakarta.persistence.*;
 import lombok.*;

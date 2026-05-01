@@ -1,6 +1,6 @@
 package com.ttkhnvv.rtm.repository.user;
 
-import com.ttkhnvv.rtm.entity.User;
+import com.ttkhnvv.rtm.entity.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

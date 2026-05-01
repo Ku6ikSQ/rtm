@@ -1,6 +1,6 @@
 package com.ttkhnvv.rtm.security.jwt;
 
-import com.ttkhnvv.rtm.entity.User;
+import com.ttkhnvv.rtm.entity.user.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;

@@ -1,6 +1,6 @@
 package com.ttkhnvv.rtm.security;
 
-import com.ttkhnvv.rtm.entity.User;
+import com.ttkhnvv.rtm.entity.user.User;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.GrantedAuthority;

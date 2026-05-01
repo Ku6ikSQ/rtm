@@ -1,8 +1,8 @@
 package com.ttkhnvv.rtm.service;
 
 import com.ttkhnvv.rtm.dto.auth.*;
-import com.ttkhnvv.rtm.entity.User;
-import com.ttkhnvv.rtm.entity.UserRole;
+import com.ttkhnvv.rtm.entity.user.User;
+import com.ttkhnvv.rtm.entity.user.UserRole;
 import com.ttkhnvv.rtm.exception.auth.*;
 import com.ttkhnvv.rtm.repository.token.TokenRepository;
 import com.ttkhnvv.rtm.repository.user.UserRepository;
