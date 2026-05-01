@@ -11,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
+
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -34,6 +36,7 @@ public class AuthService {
                                 .passwordHash(passwordEncoder.encode(request.getPassword()))
                                 .role(UserRole.USER)
                                 .isActive(true)
+                                .createdAt(Instant.now())
                                 .build()
                 );
 
