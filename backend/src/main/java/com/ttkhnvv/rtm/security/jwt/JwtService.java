@@ -66,6 +66,15 @@ public class JwtService {
         }
     }
 
+    public boolean isTokenValid(String token, org.springframework.security.core.userdetails.UserDetails userDetails) {
+        try {
+            String email = extractEmail(token);
+            return email.equals(userDetails.getUsername()) && !isTokenExpired(token);
+        } catch (JwtException e) {
+            return false;
+        }
+    }
+
     public boolean isTokenExpired(String token) {
         try {
             return getClaims(token).getExpiration().before(new Date());
