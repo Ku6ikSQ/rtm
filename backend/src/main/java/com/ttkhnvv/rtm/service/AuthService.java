@@ -103,11 +103,11 @@ public class AuthService {
         tokenRepository.delete(userId);
     }
 
-    public boolean isUserExistsByUsername(String username) {
+    private boolean isUserExistsByUsername(String username) {
         return userRepository.findUserByUsername(username).isPresent();
     }
 
-    public boolean isUserExistsByEmail(String email) {
+    private boolean isUserExistsByEmail(String email) {
         return userRepository.findUserByEmail(email).isPresent();
     }
 }
