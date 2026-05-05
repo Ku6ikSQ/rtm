@@ -11,6 +11,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+/**
+ * Handles authentication business logic: registration, login, token refresh and logout.
+ * Manages JWT token lifecycle and user session persistence in token store.
+ */
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -19,6 +23,14 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final TokenRepository tokenRepository;
 
+    /**
+     * Registers a new user and saves the refresh token to token store.
+     *
+     * @param request registration data (username, email and password)
+     * @return access and refresh tokens
+     * @throws EmailAlreadyTakenException if the provided email is already registered
+     * @throws UsernameAlreadyTakenException if the provided username is already taken
+     */
     public AuthResponse register(RegisterRequest request) {
         if (isUserExistsByEmail(request.getEmail()))
             throw new EmailAlreadyTakenException("This email already taken.");
@@ -48,6 +60,17 @@ public class AuthService {
                 .build();
     }
 
+
+    /**
+     * Validates user credentials and generates a new token pair.
+     * Saves the refresh token to token store for subsequent validation.
+     *
+     * @param request login data (email and password)
+     * @return access and refresh tokens
+     * @throws UserNotFoundException if no user was found with the provided email
+     * @throws UserInactiveException if the user account has been blocked
+     * @throws InvalidPasswordException if the provided password is incorrect
+     */
     public AuthResponse login(LoginRequest request) {
         var user = userRepository.findUserByEmail(request.getEmail())
                 .orElseThrow(() -> new UserNotFoundException("Failed to find user."));
@@ -67,6 +90,16 @@ public class AuthService {
                 .build();
     }
 
+
+    /**
+     * Validates the refresh token, rotates the token pair and updates token store.
+     * Implements refresh token rotation — each refresh token is single-use.
+     *
+     * @param request refresh data (refresh token)
+     * @return new access and refresh tokens
+     * @throws InvalidTokenException if the provided token is invalid, expired or does not match the stored token
+     * @throws UserNotFoundException if no user was found associated with the token
+     */
     public RefreshResponse refresh(RefreshRequest request) {
         var refresh = request.getRefreshToken();
         if (!jwtService.isTokenValid(refresh))
@@ -93,6 +126,13 @@ public class AuthService {
                 .build();
     }
 
+
+    /**
+     * Validates the refresh token and removes it from token store, terminating the session.
+     *
+     * @param request logout data (refresh token)
+     * @throws InvalidTokenException if the provided refresh token is invalid or expired
+     */
     public void logout(RefreshRequest request) {
         var refresh = request.getRefreshToken();
 
