@@ -19,6 +19,10 @@ import java.time.Clock;
 import java.util.Date;
 import java.util.UUID;
 
+/**
+ * Handles JWT token generation, validation and claims extraction.
+ * Uses HMAC-SHA256 signing algorithm.
+ */
 @Service
 public class JwtService {
     private final String secretKeyStr;
@@ -43,6 +47,13 @@ public class JwtService {
         this(secretKeyStr, accessTokenTtlMinutes, refreshTokenTtlDays, Clock.systemUTC());
     }
 
+    /**
+     * Generates a short-lived access token for the given user.
+     * Contains email, role and userId claims.
+     *
+     * @param user the user to generate the token for
+     * @return signed JWT access token
+     */
     public String generateAccessToken(User user) {
         var now = clock.millis();
         return Jwts.builder()
@@ -55,6 +66,13 @@ public class JwtService {
                 .compact();
     }
 
+    /**
+     * Generates a long-lived refresh token for the given user.
+     * Contains email and userId claims.
+     *
+     * @param user the user to generate the token for
+     * @return signed JWT refresh token
+     */
     public String generateRefreshToken(User user) {
         var now = clock.millis();
         return Jwts.builder()
@@ -66,14 +84,32 @@ public class JwtService {
                 .compact();
     }
 
+    /**
+     * Extracts the email address from the token's subject claim.
+     *
+     * @param token the JWT token
+     * @return the email address
+     */
     public String extractEmail(String token) {
         return getClaims(token).getSubject();
     }
 
+    /**
+     * Extracts the user ID from the token's userId claim.
+     *
+     * @param token the JWT token
+     * @return the user ID
+     */
     public UUID extractUserId(String token) {
         return UUID.fromString(getClaims(token).get("userId", String.class));
     }
 
+    /**
+     * Validates the token's signature and expiration.
+     *
+     * @param token the JWT token to validate
+     * @return {@code true} if the token is valid, {@code false} otherwise
+     */
     public boolean isTokenValid(String token) {
         try {
             Jwts.parser()
@@ -86,6 +122,14 @@ public class JwtService {
         }
     }
 
+    /**
+     * Validates the token's signature, expiration and verifies
+     * that the token belongs to the given user.
+     *
+     * @param token the JWT token to validate
+     * @param userDetails the user to validate the token against
+     * @return {@code true} if the token is valid and belongs to the user, {@code false} otherwise
+     */
     public boolean isTokenValid(String token, UserDetails userDetails) {
         try {
             String email = extractEmail(token);
@@ -95,6 +139,12 @@ public class JwtService {
         }
     }
 
+    /**
+     * Checks whether the token has expired.
+     *
+     * @param token the JWT token to check
+     * @return {@code true} if the token is expired or invalid, {@code false} otherwise
+     */
     public boolean isTokenExpired(String token) {
         try {
             return getClaims(token).getExpiration().before(Date.from(clock.instant()));
