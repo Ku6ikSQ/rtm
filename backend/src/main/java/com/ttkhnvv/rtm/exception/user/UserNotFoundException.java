@@ -1,4 +1,4 @@
-package com.ttkhnvv.rtm.exception.auth;
+package com.ttkhnvv.rtm.exception.user;
 
 public class UserNotFoundException extends RuntimeException {
     public UserNotFoundException(String message) {

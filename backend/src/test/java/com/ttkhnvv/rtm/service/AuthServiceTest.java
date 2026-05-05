@@ -6,6 +6,7 @@ import com.ttkhnvv.rtm.dto.auth.RegisterRequest;
 import com.ttkhnvv.rtm.entity.user.User;
 import com.ttkhnvv.rtm.entity.user.UserRole;
 import com.ttkhnvv.rtm.exception.auth.*;
+import com.ttkhnvv.rtm.exception.user.UserNotFoundException;
 import com.ttkhnvv.rtm.repository.token.TokenRepository;
 import com.ttkhnvv.rtm.repository.user.UserRepository;
 import com.ttkhnvv.rtm.security.jwt.JwtService;

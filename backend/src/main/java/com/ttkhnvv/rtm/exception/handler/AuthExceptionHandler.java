@@ -1,6 +1,7 @@
 package com.ttkhnvv.rtm.exception.handler;
 
 import com.ttkhnvv.rtm.exception.auth.*;
+import com.ttkhnvv.rtm.exception.user.UserNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;

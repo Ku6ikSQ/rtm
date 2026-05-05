@@ -2,6 +2,7 @@ package com.ttkhnvv.rtm.controller;
 
 import com.ttkhnvv.rtm.dto.auth.*;
 import com.ttkhnvv.rtm.exception.auth.*;
+import com.ttkhnvv.rtm.exception.user.UserNotFoundException;
 import com.ttkhnvv.rtm.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
