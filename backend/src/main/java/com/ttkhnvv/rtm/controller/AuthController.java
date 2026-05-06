@@ -4,6 +4,7 @@ import com.ttkhnvv.rtm.dto.auth.*;
 import com.ttkhnvv.rtm.exception.auth.*;
 import com.ttkhnvv.rtm.exception.user.UserNotFoundException;
 import com.ttkhnvv.rtm.service.AuthService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,7 +31,7 @@ public class AuthController {
      * @throws UsernameAlreadyTakenException if the provided username is already taken
      */
     @PostMapping("/register")
-    public ResponseEntity<AuthResponse> register(@RequestBody RegisterRequest request) {
+    public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request) {
         return ResponseEntity.status(201).body(authService.register(request));
     }
 
@@ -44,7 +45,7 @@ public class AuthController {
      * @throws InvalidPasswordException if the provided password is incorrect
      */
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
         return ResponseEntity.status(200).body(authService.login(request));
     }
 
@@ -57,7 +58,7 @@ public class AuthController {
      * @throws UserNotFoundException if no user was found associated with the token
      */
     @PostMapping("/refresh")
-    public ResponseEntity<RefreshResponse> refresh(@RequestBody RefreshRequest request) {
+    public ResponseEntity<RefreshResponse> refresh(@Valid @RequestBody RefreshRequest request) {
         return ResponseEntity.status(200).body(authService.refresh(request));
     }
 
@@ -68,7 +69,7 @@ public class AuthController {
      * @throws InvalidTokenException if the provided refresh token is invalid or expired
      */
     @PostMapping("/logout")
-    public ResponseEntity<Void> logout(@RequestBody RefreshRequest request) {
+    public ResponseEntity<Void> logout(@Valid @RequestBody RefreshRequest request) {
         authService.logout(request);
         return ResponseEntity.noContent().build();
     }
