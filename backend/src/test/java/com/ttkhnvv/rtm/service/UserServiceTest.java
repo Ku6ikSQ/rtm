@@ -33,7 +33,7 @@ class UserServiceTest {
 
     @BeforeEach
     void init() {
-        userService = new UserService(userRepository, userMapper);
+        userService = new UserService(userRepository, userMapper, null, null);
         user = User
                 .builder()
                 .id(UUID.randomUUID())

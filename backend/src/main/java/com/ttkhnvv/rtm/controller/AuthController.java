@@ -4,6 +4,7 @@ import com.ttkhnvv.rtm.dto.auth.*;
 import com.ttkhnvv.rtm.exception.auth.*;
 import com.ttkhnvv.rtm.exception.user.UserNotFoundException;
 import com.ttkhnvv.rtm.service.AuthService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -20,8 +21,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
 public class AuthController {
-    private final AuthService authService;
-
     /**
      * Registers a new user and returns access and refresh tokens.
      *
@@ -30,10 +29,13 @@ public class AuthController {
      * @throws EmailAlreadyTakenException if the provided email is already registered
      * @throws UsernameAlreadyTakenException if the provided username is already taken
      */
+    @SecurityRequirements
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request) {
         return ResponseEntity.status(201).body(authService.register(request));
     }
+
+    private final AuthService authService;
 
     /**
      * Authenticates a user and returns access and refresh tokens.
@@ -44,6 +46,7 @@ public class AuthController {
      * @throws UserInactiveException if the user account has been blocked
      * @throws InvalidPasswordException if the provided password is incorrect
      */
+    @SecurityRequirements
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
         return ResponseEntity.status(200).body(authService.login(request));

@@ -130,6 +130,7 @@ public class JwtService {
      * @param userDetails the user to validate the token against
      * @return {@code true} if the token is valid and belongs to the user, {@code false} otherwise
      */
+    // TODO: remove it
     public boolean isTokenValid(String token, UserDetails userDetails) {
         try {
             String email = extractEmail(token);
