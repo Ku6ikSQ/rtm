@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install *)",
+      "Bash(grep -E \"^vite$|^react$|^zustand$|^zod$\")",
+      "Bash(/usr/bin/npm install *)",
+      "Bash(cat /home/tikho/.npm/_logs/2026-05-07T06_45_25_995Z-debug-0.log | grep -A5 \"ERR!\" | head -40)",
+      "Read(//home/tikho/.npm/_logs/**)",
+      "Bash(rm -rf node_modules package-lock.json && /usr/bin/npm install 2>&1 | tail -8)",
+      "Bash(npx tsc *)",
+      "Bash(npx vite *)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:5173/)",
+      "Bash(pkill -f \"vite --port 5173\")",
+      "Bash(npm run *)",
+      "Bash(sed -n '38,50p' /home/tikho/projects/rtm/frontend/src/types/entities.ts)",
+      "Bash(sed -n '95,115p' /home/tikho/projects/rtm/frontend/src/types/entities.ts)"
+    ],
+    "additionalDirectories": [
+      "/home/tikho/projects/rtm/frontend/node_modules"
+    ]
+  }
+}
