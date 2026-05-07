@@ -19,4 +19,44 @@ public class UserController {
         var user = userService.getById(id);
         return ResponseEntity.ok(user);
     }
+
+    @PostMapping("/{id}/block")
+    public ResponseEntity<Void> block(@PathVariable UUID id) {
+        return ResponseEntity.ok(null);
+    }
+
+    @PostMapping("/{id}/unblock")
+    public ResponseEntity<Void> unblock(@PathVariable UUID id) {
+        return ResponseEntity.ok(null);
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<UserResponse> getUserOwn() {
+        return ResponseEntity.ok(null);
+    }
+
+    @DeleteMapping("/me")
+    public ResponseEntity<Void> deleteUser() {
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/me/username")
+    public ResponseEntity<Void> updateUsername() {
+        return ResponseEntity.ok(null);
+    }
+
+    @PatchMapping("/me/email")
+    public ResponseEntity<Void> updateEmail() {
+        return ResponseEntity.ok(null);
+    }
+
+    @PatchMapping("/me/password")
+    public ResponseEntity<Void> updatePassword() {
+        return ResponseEntity.ok(null);
+    }
+
+    @PatchMapping("/me/avatar")
+    public ResponseEntity<Void> updateAvatar() {
+        return ResponseEntity.ok(null);
+    }
 }
