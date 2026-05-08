@@ -6,6 +6,7 @@ import com.ttkhnvv.rtm.exception.user.UserNotFoundException;
 import com.ttkhnvv.rtm.mapper.UserMapper;
 import com.ttkhnvv.rtm.repository.token.TokenRepository;
 import com.ttkhnvv.rtm.repository.user.UserRepository;
+import com.ttkhnvv.rtm.service.storage.StorageService;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -21,11 +22,15 @@ public class UserService {
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
     private final TokenRepository tokenRepository;
+    private final StorageService storageService;
 
     @Transactional(readOnly = true)
     public UserResponse getById(UUID id) {
         var user = findUserById(id);
-        return userMapper.toResponse(user);
+        var response = userMapper.toResponse(user);
+        if (user.getImageKey() != null)
+            response.setImageUrl(storageService.getPresignedUrl(user.getImageKey()));
+        return response;
     }
 
     @Transactional
@@ -73,8 +78,10 @@ public class UserService {
     @Transactional
     public void updateAvatar(UUID id, MultipartFile file) {
         var user = findUserById(id);
-        // TODO: store image into minIO and then use imageKey
-        user.setImageKey(file.getOriginalFilename());
+        if (user.getImageKey() != null)
+            storageService.delete(user.getImageKey());
+        var imageKey = storageService.upload(file);
+        user.setImageKey(imageKey);
         userRepository.save(user);
     }
 
