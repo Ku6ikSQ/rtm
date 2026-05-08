@@ -33,7 +33,7 @@ class UserServiceTest {
 
     @BeforeEach
     void init() {
-        userService = new UserService(userRepository, userMapper, null, null);
+        userService = new UserService(userRepository, userMapper, null, null, null);
         user = User
                 .builder()
                 .id(UUID.randomUUID())
@@ -53,7 +53,7 @@ class UserServiceTest {
                     .id(user.getId())
                     .username(user.getUsername())
                     .email(user.getEmail())
-                    .imageKey(user.getImageKey())
+                    .imageUrl(user.getImageKey())
                     .build();
             when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
 
