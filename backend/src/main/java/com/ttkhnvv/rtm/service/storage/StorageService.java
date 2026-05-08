@@ -6,4 +6,6 @@ public interface StorageService {
     String upload(MultipartFile file);
 
     void delete(String key);
+
+    String getPresignedUrl(String key);
 }

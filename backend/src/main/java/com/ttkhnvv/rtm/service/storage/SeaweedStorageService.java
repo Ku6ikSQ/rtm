@@ -9,16 +9,20 @@ import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.util.Set;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class SeaweedStorageService implements StorageService {
-    private final S3Client s3Client;
     private final StorageProperties properties;
+    private final S3Client s3Client;
+    private final S3Presigner s3Presigner;
 
     public String upload(MultipartFile file) {
         if (file.isEmpty())
@@ -47,6 +51,18 @@ public class SeaweedStorageService implements StorageService {
                         .key(key)
                         .build()
         );
+    }
+
+    @Override
+    public String getPresignedUrl(String key) {
+        var request = GetObjectPresignRequest.builder()
+                .signatureDuration(Duration.ofMinutes(60))
+                .getObjectRequest(r -> r
+                        .bucket(properties.getBucket())
+                        .key(key))
+                .build();
+
+        return s3Presigner.presignGetObject(request).url().toString();
     }
 
     private String getKey(String filename) {
