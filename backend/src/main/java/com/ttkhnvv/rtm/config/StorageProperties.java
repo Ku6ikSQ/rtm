@@ -12,4 +12,6 @@ import org.springframework.context.annotation.Configuration;
 public class StorageProperties {
     private String endpoint;
     private String bucket;
+    private String accessKey;
+    private String secretKey;
 }
