@@ -11,11 +11,12 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.UUID;
 
+import static com.ttkhnvv.rtm.config.ApiConstants.API_PREFIX;
 import static com.ttkhnvv.rtm.security.util.SecurityUtils.getCurrentUserId;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/users")
+@RequestMapping(API_PREFIX + "/users")
 public class UserController {
     private final UserService userService;
 

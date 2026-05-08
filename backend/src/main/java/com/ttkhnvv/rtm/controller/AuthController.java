@@ -13,12 +13,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import static com.ttkhnvv.rtm.config.ApiConstants.API_PREFIX;
+
 /**
  * Handles authentication operations: registration, login, token refresh and logout.
  * Base path: /api/v1/auth
  */
 @RestController
-@RequestMapping("/api/v1/auth")
+@RequestMapping(API_PREFIX + "/auth")
 @RequiredArgsConstructor
 public class AuthController {
     /**
@@ -26,7 +28,7 @@ public class AuthController {
      *
      * @param request registration data (username, email and password)
      * @return access and refresh tokens
-     * @throws EmailAlreadyTakenException if the provided email is already registered
+     * @throws EmailAlreadyTakenException    if the provided email is already registered
      * @throws UsernameAlreadyTakenException if the provided username is already taken
      */
     @SecurityRequirements
@@ -42,8 +44,8 @@ public class AuthController {
      *
      * @param request login data (email and password)
      * @return access and refresh tokens
-     * @throws UserNotFoundException if no user was found with the provided email
-     * @throws UserInactiveException if the user account has been blocked
+     * @throws UserNotFoundException    if no user was found with the provided email
+     * @throws UserInactiveException    if the user account has been blocked
      * @throws InvalidPasswordException if the provided password is incorrect
      */
     @SecurityRequirements
