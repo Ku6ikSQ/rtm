@@ -6,7 +6,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
@@ -17,7 +19,10 @@ public class SpringSecurity {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity httpSecurity, JwtFilter jwtFilter) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity httpSecurity,
+                                           JwtFilter jwtFilter,
+                                           AuthenticationEntryPoint authEntryPoint,
+                                           AccessDeniedHandler accessDeniedHandler) throws Exception {
         return httpSecurity
                 .csrf(AbstractHttpConfigurer::disable)
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
@@ -30,6 +35,11 @@ public class SpringSecurity {
                                 "/v3/api-docs"
                         ).permitAll()
                         .anyRequest().authenticated())
+                .exceptionHandling(ex ->
+                        ex
+                                .authenticationEntryPoint(authEntryPoint)
+                                .accessDeniedHandler(accessDeniedHandler)
+                )
                 .build();
     }
 }
