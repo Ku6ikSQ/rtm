@@ -1,6 +1,7 @@
-package com.ttkhnvv.rtm.validation;
+package com.ttkhnvv.rtm.validation.common;
 
 import jakarta.validation.Constraint;
+import jakarta.validation.Payload;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
@@ -11,11 +12,11 @@ import java.lang.annotation.Target;
 
 @Target({ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
-@NotBlank(message = "Username is required")
-@Size(min = 3, max = 50)
+@NotBlank(message = "Token is required")
+@Size(max = 512, message = "Token is too long")
 @Constraint(validatedBy = {})
-public @interface ValidUsername {
-    String message() default "Invalid username";
+public @interface ValidToken {
+    String message() default "Invalid token";
     Class<?>[] groups() default {};
-    Class<? extends jakarta.validation.Payload>[] payload() default {};
+    Class<? extends Payload>[] payload() default {};
 }

@@ -1,4 +1,4 @@
-package com.ttkhnvv.rtm.validation;
+package com.ttkhnvv.rtm.validation.common;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.constraints.NotBlank;

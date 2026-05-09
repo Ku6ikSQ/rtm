@@ -1,8 +1,8 @@
 package com.ttkhnvv.rtm.dto.auth;
 
-import com.ttkhnvv.rtm.validation.ValidEmail;
-import com.ttkhnvv.rtm.validation.ValidPassword;
-import com.ttkhnvv.rtm.validation.ValidUsername;
+import com.ttkhnvv.rtm.validation.common.ValidEmail;
+import com.ttkhnvv.rtm.validation.common.ValidPassword;
+import com.ttkhnvv.rtm.validation.common.ValidUsername;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

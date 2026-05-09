@@ -1,7 +1,6 @@
 package com.ttkhnvv.rtm.dto.auth;
 
-import com.ttkhnvv.rtm.validation.ValidToken;
-import jakarta.validation.Constraint;
+import com.ttkhnvv.rtm.validation.common.ValidToken;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
