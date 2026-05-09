@@ -1,19 +1,22 @@
 package com.ttkhnvv.rtm.service;
 
+import com.ttkhnvv.rtm.dto.PageResponse;
+import com.ttkhnvv.rtm.dto.album.AlbumFilter;
 import com.ttkhnvv.rtm.dto.album.AlbumResponse;
 import com.ttkhnvv.rtm.dto.album.CreateAlbumRequest;
 import com.ttkhnvv.rtm.entity.album.Album;
 import com.ttkhnvv.rtm.exception.album.AlbumNotFoundException;
 import com.ttkhnvv.rtm.mapper.AlbumMapper;
 import com.ttkhnvv.rtm.repository.album.AlbumRepository;
+import com.ttkhnvv.rtm.repository.album.AlbumSpecs;
 import com.ttkhnvv.rtm.repository.review.ReviewRepository;
 import com.ttkhnvv.rtm.service.storage.StorageService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -25,10 +28,14 @@ public class AlbumService {
     private final StorageService storageService;
 
     @Transactional(readOnly = true)
-    public List<AlbumResponse> getAll() {
-        return albumRepository.findAll().stream()
+    public PageResponse<AlbumResponse> getAll(AlbumFilter filter, Pageable pageable) {
+        var spec = AlbumSpecs.titleContains(filter.getTitle())
+                .and(AlbumSpecs.releaseYearEquals(filter.getReleaseYear()));
+        var page = albumRepository.findAll(spec, pageable);
+        var content = page.getContent().stream()
                 .map(this::toResponseWithCoverUrl)
                 .toList();
+        return PageResponse.of(page, content);
     }
 
     @Transactional(readOnly = true)

@@ -1,15 +1,18 @@
 package com.ttkhnvv.rtm.controller;
 
+import com.ttkhnvv.rtm.dto.PageResponse;
 import com.ttkhnvv.rtm.dto.album.*;
 import com.ttkhnvv.rtm.service.AlbumService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
 import java.util.UUID;
 
 import static com.ttkhnvv.rtm.config.ApiConstants.API_PREFIX;
@@ -22,8 +25,10 @@ public class AlbumController {
     private final AlbumService albumService;
 
     @GetMapping
-    public ResponseEntity<List<AlbumResponse>> getAll() {
-        return ResponseEntity.ok(albumService.getAll());
+    public ResponseEntity<PageResponse<AlbumResponse>> getAll(
+            @ModelAttribute AlbumFilter filter,
+            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        return ResponseEntity.ok(albumService.getAll(filter, pageable));
     }
 
     @GetMapping("/{id}")
