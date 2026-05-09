@@ -1,6 +1,6 @@
 package com.ttkhnvv.rtm.service;
 
-import com.ttkhnvv.rtm.dto.PageResponse;
+import com.ttkhnvv.rtm.dto.pagination.PageResponse;
 import com.ttkhnvv.rtm.dto.track.CreateTrackRequest;
 import com.ttkhnvv.rtm.dto.track.TrackFilter;
 import com.ttkhnvv.rtm.dto.track.TrackResponse;

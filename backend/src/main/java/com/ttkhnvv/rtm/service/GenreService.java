@@ -1,6 +1,6 @@
 package com.ttkhnvv.rtm.service;
 
-import com.ttkhnvv.rtm.dto.PageResponse;
+import com.ttkhnvv.rtm.dto.pagination.PageResponse;
 import com.ttkhnvv.rtm.dto.genre.CreateGenreRequest;
 import com.ttkhnvv.rtm.dto.genre.GenreFilter;
 import com.ttkhnvv.rtm.dto.genre.GenreResponse;

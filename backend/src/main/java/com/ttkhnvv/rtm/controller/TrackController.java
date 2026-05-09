@@ -1,6 +1,6 @@
 package com.ttkhnvv.rtm.controller;
 
-import com.ttkhnvv.rtm.dto.PageResponse;
+import com.ttkhnvv.rtm.dto.pagination.PageResponse;
 import com.ttkhnvv.rtm.dto.track.*;
 import com.ttkhnvv.rtm.security.constraint.HasRoleAny;
 import com.ttkhnvv.rtm.security.constraint.HasRoleTrusted;

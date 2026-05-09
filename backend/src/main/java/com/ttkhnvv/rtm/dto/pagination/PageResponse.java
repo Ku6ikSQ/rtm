@@ -1,4 +1,4 @@
-package com.ttkhnvv.rtm.dto;
+package com.ttkhnvv.rtm.dto.pagination;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

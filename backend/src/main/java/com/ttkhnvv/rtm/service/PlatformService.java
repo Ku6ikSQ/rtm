@@ -1,6 +1,6 @@
 package com.ttkhnvv.rtm.service;
 
-import com.ttkhnvv.rtm.dto.PageResponse;
+import com.ttkhnvv.rtm.dto.pagination.PageResponse;
 import com.ttkhnvv.rtm.dto.platform.CreatePlatformRequest;
 import com.ttkhnvv.rtm.dto.platform.PlatformFilter;
 import com.ttkhnvv.rtm.dto.platform.PlatformResponse;

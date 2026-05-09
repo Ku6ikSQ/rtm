@@ -1,6 +1,6 @@
 package com.ttkhnvv.rtm.service;
 
-import com.ttkhnvv.rtm.dto.PageResponse;
+import com.ttkhnvv.rtm.dto.pagination.PageResponse;
 import com.ttkhnvv.rtm.dto.album.AlbumFilter;
 import com.ttkhnvv.rtm.dto.album.AlbumResponse;
 import com.ttkhnvv.rtm.dto.album.CreateAlbumRequest;

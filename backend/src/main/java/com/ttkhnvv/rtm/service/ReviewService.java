@@ -1,6 +1,6 @@
 package com.ttkhnvv.rtm.service;
 
-import com.ttkhnvv.rtm.dto.PageResponse;
+import com.ttkhnvv.rtm.dto.pagination.PageResponse;
 import com.ttkhnvv.rtm.dto.review.CreateReviewRequest;
 import com.ttkhnvv.rtm.dto.review.ReviewFilter;
 import com.ttkhnvv.rtm.dto.review.ReviewResponse;
