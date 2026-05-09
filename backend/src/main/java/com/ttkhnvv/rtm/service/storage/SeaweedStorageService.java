@@ -24,6 +24,7 @@ public class SeaweedStorageService implements StorageService {
     private final S3Client s3Client;
     private final S3Presigner s3Presigner;
 
+    @Override
     public String upload(MultipartFile file) {
         if (file.isEmpty())
             throw new StorageException("File is empty");
@@ -44,6 +45,7 @@ public class SeaweedStorageService implements StorageService {
         return key;
     }
 
+    @Override
     public void delete(String key) {
         s3Client.deleteObject(
                 DeleteObjectRequest.builder()
