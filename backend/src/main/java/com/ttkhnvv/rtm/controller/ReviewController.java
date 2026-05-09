@@ -2,6 +2,8 @@ package com.ttkhnvv.rtm.controller;
 
 import com.ttkhnvv.rtm.dto.PageResponse;
 import com.ttkhnvv.rtm.dto.review.*;
+import com.ttkhnvv.rtm.security.constraint.HasRoleAny;
+import com.ttkhnvv.rtm.security.constraint.HasRoleUser;
 import com.ttkhnvv.rtm.service.ReviewService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +24,7 @@ import static com.ttkhnvv.rtm.security.util.SecurityUtils.getCurrentUserId;
 public class ReviewController {
     private final ReviewService reviewService;
 
+    @HasRoleAny
     @GetMapping
     public ResponseEntity<PageResponse<ReviewResponse>> getAll(
             @ModelAttribute ReviewFilter filter,
@@ -29,16 +32,19 @@ public class ReviewController {
         return ResponseEntity.ok(reviewService.getAll(filter, pageable));
     }
 
+    @HasRoleAny
     @GetMapping("/{id}")
     public ResponseEntity<ReviewResponse> getById(@PathVariable UUID id) {
         return ResponseEntity.ok(reviewService.getById(id));
     }
 
+    @HasRoleUser
     @PostMapping
     public ResponseEntity<ReviewResponse> create(@Valid @RequestBody CreateReviewRequest request) {
         return ResponseEntity.status(201).body(reviewService.create(request, getCurrentUserId()));
     }
 
+    @HasRoleUser
     @PatchMapping("/{id}/album-id")
     public ResponseEntity<Void> updateAlbumId(@PathVariable UUID id,
                                               @Valid @RequestBody UpdateAlbumIdRequest request) {
@@ -46,6 +52,7 @@ public class ReviewController {
         return ResponseEntity.noContent().build();
     }
 
+    @HasRoleUser
     @PatchMapping("/{id}/author-id")
     public ResponseEntity<Void> updateAuthorId(@PathVariable UUID id,
                                                @Valid @RequestBody UpdateAuthorIdRequest request) {
@@ -53,6 +60,7 @@ public class ReviewController {
         return ResponseEntity.noContent().build();
     }
 
+    @HasRoleUser
     @PatchMapping("/{id}/score")
     public ResponseEntity<Void> updateScore(@PathVariable UUID id,
                                             @Valid @RequestBody UpdateScoreRequest request) {
@@ -60,6 +68,7 @@ public class ReviewController {
         return ResponseEntity.noContent().build();
     }
 
+    @HasRoleUser
     @PatchMapping("/{id}/review-text")
     public ResponseEntity<Void> updateReviewText(@PathVariable UUID id,
                                                  @Valid @RequestBody UpdateReviewTextRequest request) {
@@ -67,6 +76,7 @@ public class ReviewController {
         return ResponseEntity.noContent().build();
     }
 
+    @HasRoleUser
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
         reviewService.delete(id);

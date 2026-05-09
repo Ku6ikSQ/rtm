@@ -3,6 +3,8 @@ package com.ttkhnvv.rtm.controller;
 import com.ttkhnvv.rtm.dto.auth.*;
 import com.ttkhnvv.rtm.exception.auth.*;
 import com.ttkhnvv.rtm.exception.user.UserNotFoundException;
+import com.ttkhnvv.rtm.security.constraint.HasRoleAny;
+import com.ttkhnvv.rtm.security.constraint.HasRoleUser;
 import com.ttkhnvv.rtm.service.AuthService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import jakarta.validation.Valid;
@@ -34,6 +36,7 @@ public class AuthController {
      * @throws UsernameAlreadyTakenException if the provided username is already taken
      */
     @SecurityRequirements
+    @HasRoleAny
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request) {
         return ResponseEntity.status(201).body(authService.register(request));
@@ -49,6 +52,7 @@ public class AuthController {
      * @throws InvalidPasswordException if the provided password is incorrect
      */
     @SecurityRequirements
+    @HasRoleAny
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
         return ResponseEntity.status(200).body(authService.login(request));
@@ -62,6 +66,7 @@ public class AuthController {
      * @throws InvalidTokenException if the provided refresh token is invalid or expired
      * @throws UserNotFoundException if no user was found associated with the token
      */
+    @HasRoleUser
     @PostMapping("/refresh")
     public ResponseEntity<RefreshResponse> refresh(@Valid @RequestBody RefreshRequest request) {
         return ResponseEntity.status(200).body(authService.refresh(request));
@@ -73,6 +78,7 @@ public class AuthController {
      * @param request logout data (refresh token)
      * @throws InvalidTokenException if the provided refresh token is invalid or expired
      */
+    @HasRoleUser
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(@Valid @RequestBody RefreshRequest request) {
         authService.logout(request);

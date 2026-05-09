@@ -32,55 +32,12 @@ public class SpringSecurity {
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                api("/auth/register"),
-                                api("/auth/login")
-                        ).permitAll()
-//                        .requestMatchers(
-//                                HttpMethod.GET,
-//                                api("/albums/"),
-//                                api("/albums/{id}")
-//                        ).permitAll()
-//                        .requestMatchers(
-//                                HttpMethod.GET,
-//                                api("/artists/{id}")
-//                        ).permitAll()
-//                        .requestMatchers(
-//                                HttpMethod.GET,
-//                                api("/album-artists/by-album/{albumId}"),
-//                                api("/album-artists/{albumId}/{artistId}")
-//                        ).permitAll()
-//                        .requestMatchers(
-//                                HttpMethod.GET,
-//                                api("/album-genres/by-album/{albumId}"),
-//                                api("/album-genres/{albumId}/{genreId}")
-//                        ).permitAll()
-//                        .requestMatchers(
-//                                HttpMethod.GET,
-//                                api("/genres/"),
-//                                api("/genres/{id}")
-//                        ).permitAll()
-//                        .requestMatchers(
-//                                HttpMethod.GET,
-//                                api("/platforms/"),
-//                                api("/platforms/{id}")
-//                        ).permitAll()
-//                        .requestMatchers(
-//                                HttpMethod.GET,
-//                                api("/tracks/"),
-//                                api("/tracks/{id}")
-//                        ).permitAll()
-//                        .requestMatchers(
-//                                HttpMethod.GET,
-//                                api("/reviews/"),
-//                                api("/reviews/{id}")
-//                        ).permitAll()
-                        .requestMatchers(
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
                                 "/v3/api-docs/**",
                                 "/v3/api-docs"
                         ).permitAll()
-                        .anyRequest().authenticated())
+                        .anyRequest().permitAll())
                 .exceptionHandling(ex ->
                         ex
                                 .authenticationEntryPoint(authEntryPoint)

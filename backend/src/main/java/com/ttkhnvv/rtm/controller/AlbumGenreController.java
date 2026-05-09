@@ -1,6 +1,8 @@
 package com.ttkhnvv.rtm.controller;
 
 import com.ttkhnvv.rtm.dto.albumgenre.*;
+import com.ttkhnvv.rtm.security.constraint.HasRoleAny;
+import com.ttkhnvv.rtm.security.constraint.HasRoleTrusted;
 import com.ttkhnvv.rtm.service.AlbumGenreService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,22 +20,26 @@ import static com.ttkhnvv.rtm.config.ApiConstants.API_PREFIX;
 public class AlbumGenreController {
     private final AlbumGenreService albumGenreService;
 
+    @HasRoleAny
     @GetMapping("/by-album/{albumId}")
     public ResponseEntity<List<AlbumGenreResponse>> getByAlbumId(@PathVariable UUID albumId) {
         return ResponseEntity.ok(albumGenreService.getByAlbumId(albumId));
     }
 
+    @HasRoleAny
     @GetMapping("/{albumId}/{genreId}")
     public ResponseEntity<AlbumGenreResponse> getById(@PathVariable UUID albumId,
                                                       @PathVariable UUID genreId) {
         return ResponseEntity.ok(albumGenreService.getById(albumId, genreId));
     }
 
+    @HasRoleTrusted
     @PostMapping
     public ResponseEntity<AlbumGenreResponse> create(@Valid @RequestBody CreateAlbumGenreRequest request) {
         return ResponseEntity.status(201).body(albumGenreService.create(request));
     }
 
+    @HasRoleTrusted
     @PatchMapping("/{albumId}/{genreId}/album-id")
     public ResponseEntity<Void> updateAlbumId(@PathVariable UUID albumId,
                                               @PathVariable UUID genreId,
@@ -42,6 +48,7 @@ public class AlbumGenreController {
         return ResponseEntity.noContent().build();
     }
 
+    @HasRoleTrusted
     @PatchMapping("/{albumId}/{genreId}/genre-id")
     public ResponseEntity<Void> updateGenreId(@PathVariable UUID albumId,
                                               @PathVariable UUID genreId,
@@ -50,6 +57,7 @@ public class AlbumGenreController {
         return ResponseEntity.noContent().build();
     }
 
+    @HasRoleTrusted
     @DeleteMapping("/{albumId}/{genreId}")
     public ResponseEntity<Void> delete(@PathVariable UUID albumId,
                                        @PathVariable UUID genreId) {

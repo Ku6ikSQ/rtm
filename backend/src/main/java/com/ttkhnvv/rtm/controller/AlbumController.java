@@ -2,6 +2,8 @@ package com.ttkhnvv.rtm.controller;
 
 import com.ttkhnvv.rtm.dto.PageResponse;
 import com.ttkhnvv.rtm.dto.album.*;
+import com.ttkhnvv.rtm.security.constraint.HasRoleAny;
+import com.ttkhnvv.rtm.security.constraint.HasRoleTrusted;
 import com.ttkhnvv.rtm.service.AlbumService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +26,7 @@ import static com.ttkhnvv.rtm.security.util.SecurityUtils.getCurrentUserId;
 public class AlbumController {
     private final AlbumService albumService;
 
+    @HasRoleAny
     @GetMapping
     public ResponseEntity<PageResponse<AlbumResponse>> getAll(
             @ModelAttribute AlbumFilter filter,
@@ -31,16 +34,19 @@ public class AlbumController {
         return ResponseEntity.ok(albumService.getAll(filter, pageable));
     }
 
+    @HasRoleAny
     @GetMapping("/{id}")
     public ResponseEntity<AlbumResponse> getById(@PathVariable UUID id) {
         return ResponseEntity.ok(albumService.getById(id));
     }
 
+    @HasRoleTrusted
     @PostMapping
     public ResponseEntity<AlbumResponse> create(@Valid @RequestBody CreateAlbumRequest request) {
         return ResponseEntity.status(201).body(albumService.create(request, getCurrentUserId()));
     }
 
+    @HasRoleTrusted
     @PatchMapping("/{id}/title")
     public ResponseEntity<Void> updateTitle(@PathVariable UUID id,
                                             @Valid @RequestBody UpdateTitleRequest request) {
@@ -48,6 +54,7 @@ public class AlbumController {
         return ResponseEntity.noContent().build();
     }
 
+    @HasRoleTrusted
     @PatchMapping("/{id}/description")
     public ResponseEntity<Void> updateDescription(@PathVariable UUID id,
                                                   @Valid @RequestBody UpdateDescriptionRequest request) {
@@ -55,6 +62,7 @@ public class AlbumController {
         return ResponseEntity.noContent().build();
     }
 
+    @HasRoleTrusted
     @PatchMapping("/{id}/release-year")
     public ResponseEntity<Void> updateReleaseYear(@PathVariable UUID id,
                                                   @Valid @RequestBody UpdateReleaseYearRequest request) {
@@ -62,6 +70,7 @@ public class AlbumController {
         return ResponseEntity.noContent().build();
     }
 
+    @HasRoleTrusted
     @PutMapping(value = "/{id}/cover", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Void> updateCover(@PathVariable UUID id,
                                             @RequestParam("file") MultipartFile file) {
@@ -69,6 +78,7 @@ public class AlbumController {
         return ResponseEntity.noContent().build();
     }
 
+    @HasRoleTrusted
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
         albumService.delete(id);

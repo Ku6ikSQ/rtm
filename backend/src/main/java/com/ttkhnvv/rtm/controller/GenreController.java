@@ -2,6 +2,8 @@ package com.ttkhnvv.rtm.controller;
 
 import com.ttkhnvv.rtm.dto.PageResponse;
 import com.ttkhnvv.rtm.dto.genre.*;
+import com.ttkhnvv.rtm.security.constraint.HasRoleAny;
+import com.ttkhnvv.rtm.security.constraint.HasRoleTrusted;
 import com.ttkhnvv.rtm.service.GenreService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +22,7 @@ import static com.ttkhnvv.rtm.config.ApiConstants.API_PREFIX;
 public class GenreController {
     private final GenreService genreService;
 
+    @HasRoleAny
     @GetMapping
     public ResponseEntity<PageResponse<GenreResponse>> getAll(
             @ModelAttribute GenreFilter filter,
@@ -27,16 +30,19 @@ public class GenreController {
         return ResponseEntity.ok(genreService.getAll(filter, pageable));
     }
 
+    @HasRoleAny
     @GetMapping("/{id}")
     public ResponseEntity<GenreResponse> getById(@PathVariable UUID id) {
         return ResponseEntity.ok(genreService.getById(id));
     }
 
+    @HasRoleTrusted
     @PostMapping
     public ResponseEntity<GenreResponse> create(@Valid @RequestBody CreateGenreRequest request) {
         return ResponseEntity.status(201).body(genreService.create(request));
     }
 
+    @HasRoleTrusted
     @PatchMapping("/{id}/name")
     public ResponseEntity<Void> updateName(@PathVariable UUID id,
                                            @Valid @RequestBody UpdateNameRequest request) {
@@ -44,6 +50,7 @@ public class GenreController {
         return ResponseEntity.noContent().build();
     }
 
+    @HasRoleTrusted
     @PatchMapping("/{id}/slug")
     public ResponseEntity<Void> updateSlug(@PathVariable UUID id,
                                            @Valid @RequestBody UpdateSlugRequest request) {
@@ -51,6 +58,7 @@ public class GenreController {
         return ResponseEntity.noContent().build();
     }
 
+    @HasRoleTrusted
     @PatchMapping("/{id}/description")
     public ResponseEntity<Void> updateDescription(@PathVariable UUID id,
                                                   @Valid @RequestBody UpdateDescriptionRequest request) {
@@ -58,6 +66,7 @@ public class GenreController {
         return ResponseEntity.noContent().build();
     }
 
+    @HasRoleTrusted
     @PatchMapping("/{id}/parent")
     public ResponseEntity<Void> updateParent(@PathVariable UUID id,
                                              @RequestBody UpdateParentIdRequest request) {
@@ -65,6 +74,7 @@ public class GenreController {
         return ResponseEntity.noContent().build();
     }
 
+    @HasRoleTrusted
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
         genreService.delete(id);

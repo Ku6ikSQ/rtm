@@ -2,6 +2,8 @@ package com.ttkhnvv.rtm.controller;
 
 import com.ttkhnvv.rtm.dto.PageResponse;
 import com.ttkhnvv.rtm.dto.track.*;
+import com.ttkhnvv.rtm.security.constraint.HasRoleAny;
+import com.ttkhnvv.rtm.security.constraint.HasRoleTrusted;
 import com.ttkhnvv.rtm.service.TrackService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +22,7 @@ import static com.ttkhnvv.rtm.config.ApiConstants.API_PREFIX;
 public class TrackController {
     private final TrackService trackService;
 
+    @HasRoleAny
     @GetMapping
     public ResponseEntity<PageResponse<TrackResponse>> getAll(
             @ModelAttribute TrackFilter filter,
@@ -27,16 +30,19 @@ public class TrackController {
         return ResponseEntity.ok(trackService.getAll(filter, pageable));
     }
 
+    @HasRoleAny
     @GetMapping("/{id}")
     public ResponseEntity<TrackResponse> getById(@PathVariable UUID id) {
         return ResponseEntity.ok(trackService.getById(id));
     }
 
+    @HasRoleTrusted
     @PostMapping
     public ResponseEntity<TrackResponse> create(@Valid @RequestBody CreateTrackRequest request) {
         return ResponseEntity.status(201).body(trackService.create(request));
     }
 
+    @HasRoleTrusted
     @PatchMapping("/{id}/title")
     public ResponseEntity<Void> updateTitle(@PathVariable UUID id,
                                             @Valid @RequestBody UpdateTitleRequest request) {
@@ -44,6 +50,7 @@ public class TrackController {
         return ResponseEntity.noContent().build();
     }
 
+    @HasRoleTrusted
     @PatchMapping("/{id}/album-id")
     public ResponseEntity<Void> updateAlbumId(@PathVariable UUID id,
                                               @Valid @RequestBody UpdateAlbumIdRequest request) {
@@ -51,6 +58,7 @@ public class TrackController {
         return ResponseEntity.noContent().build();
     }
 
+    @HasRoleTrusted
     @PatchMapping("/{id}/track-number")
     public ResponseEntity<Void> updateTrackNumber(@PathVariable UUID id,
                                                   @Valid @RequestBody UpdateTrackNumberRequest request) {
@@ -58,6 +66,7 @@ public class TrackController {
         return ResponseEntity.noContent().build();
     }
 
+    @HasRoleTrusted
     @PatchMapping("/{id}/duration-seconds")
     public ResponseEntity<Void> updateDurationSeconds(@PathVariable UUID id,
                                                       @Valid @RequestBody UpdateDurationSecondsRequest request) {
@@ -65,6 +74,7 @@ public class TrackController {
         return ResponseEntity.noContent().build();
     }
 
+    @HasRoleTrusted
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
         trackService.delete(id);

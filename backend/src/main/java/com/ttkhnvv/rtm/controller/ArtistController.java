@@ -1,6 +1,8 @@
 package com.ttkhnvv.rtm.controller;
 
 import com.ttkhnvv.rtm.dto.artist.*;
+import com.ttkhnvv.rtm.security.constraint.HasRoleAny;
+import com.ttkhnvv.rtm.security.constraint.HasRoleTrusted;
 import com.ttkhnvv.rtm.service.ArtistService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,16 +21,19 @@ import static com.ttkhnvv.rtm.config.ApiConstants.API_PREFIX;
 public class ArtistController {
     private final ArtistService artistService;
 
+    @HasRoleAny
     @GetMapping("/{id}")
     public ResponseEntity<ArtistResponse> getById(@PathVariable UUID id) {
         return ResponseEntity.ok(artistService.getById(id));
     }
 
+    @HasRoleAny
     @PostMapping
     public ResponseEntity<ArtistResponse> create(@Valid @RequestBody CreateArtistRequest request) {
         return ResponseEntity.status(201).body(artistService.create(request));
     }
 
+    @HasRoleTrusted
     @PatchMapping("/{id}/stage-name")
     public ResponseEntity<Void> updateStageName(@PathVariable UUID id,
                                                 @Valid @RequestBody UpdateStageNameRequest request) {
@@ -36,6 +41,7 @@ public class ArtistController {
         return ResponseEntity.noContent().build();
     }
 
+    @HasRoleTrusted
     @PatchMapping("/{id}/real-name")
     public ResponseEntity<Void> updateRealName(@PathVariable UUID id,
                                                @Valid @RequestBody UpdateRealNameRequest request) {
@@ -43,6 +49,7 @@ public class ArtistController {
         return ResponseEntity.noContent().build();
     }
 
+    @HasRoleTrusted
     @PatchMapping("/{id}/bio")
     public ResponseEntity<Void> updateBio(@PathVariable UUID id,
                                           @Valid @RequestBody UpdateBioRequest request) {
@@ -50,6 +57,7 @@ public class ArtistController {
         return ResponseEntity.noContent().build();
     }
 
+    @HasRoleTrusted
     @PatchMapping("/{id}/country")
     public ResponseEntity<Void> updateCountry(@PathVariable UUID id,
                                               @Valid @RequestBody UpdateCountryRequest request) {
@@ -57,6 +65,7 @@ public class ArtistController {
         return ResponseEntity.noContent().build();
     }
 
+    @HasRoleTrusted
     @PutMapping(value = "/{id}/photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Void> updatePhoto(@PathVariable UUID id,
                                             @RequestParam("file") MultipartFile file) {
@@ -64,6 +73,7 @@ public class ArtistController {
         return ResponseEntity.noContent().build();
     }
 
+    @HasRoleTrusted
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
         artistService.delete(id);
