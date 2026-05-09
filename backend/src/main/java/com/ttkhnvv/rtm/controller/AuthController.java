@@ -23,6 +23,8 @@ import static com.ttkhnvv.rtm.config.ApiConstants.API_PREFIX;
 @RequestMapping(API_PREFIX + "/auth")
 @RequiredArgsConstructor
 public class AuthController {
+    private final AuthService authService;
+
     /**
      * Registers a new user and returns access and refresh tokens.
      *
@@ -36,8 +38,6 @@ public class AuthController {
     public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request) {
         return ResponseEntity.status(201).body(authService.register(request));
     }
-
-    private final AuthService authService;
 
     /**
      * Authenticates a user and returns access and refresh tokens.
