@@ -1,0 +1,18 @@
+package com.ttkhnvv.rtm.repository.review;
+
+import com.ttkhnvv.rtm.entity.review.Review;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import java.math.BigDecimal;
+import java.util.Optional;
+import java.util.UUID;
+
+public interface ReviewRepository extends JpaRepository<Review, UUID> {
+    boolean existsByAlbumIdAndAuthorId(UUID albumId, UUID authorId);
+    boolean existsByAlbumIdAndAuthorIdAndIdNot(UUID albumId, UUID authorId, UUID id);
+
+    @Query("SELECT AVG(r.score) FROM Review r WHERE r.albumId = :albumId")
+    Optional<BigDecimal> calculateAvgRating(@Param("albumId") UUID albumId);
+}

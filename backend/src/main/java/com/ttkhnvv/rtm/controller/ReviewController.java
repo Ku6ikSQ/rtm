@@ -1,0 +1,70 @@
+package com.ttkhnvv.rtm.controller;
+
+import com.ttkhnvv.rtm.dto.review.*;
+import com.ttkhnvv.rtm.service.ReviewService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.UUID;
+
+import static com.ttkhnvv.rtm.config.ApiConstants.API_PREFIX;
+import static com.ttkhnvv.rtm.security.util.SecurityUtils.getCurrentUserId;
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping(API_PREFIX + "/reviews")
+public class ReviewController {
+    private final ReviewService reviewService;
+
+    @GetMapping
+    public ResponseEntity<List<ReviewResponse>> getAll() {
+        return ResponseEntity.ok(reviewService.getAll());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ReviewResponse> getById(@PathVariable UUID id) {
+        return ResponseEntity.ok(reviewService.getById(id));
+    }
+
+    @PostMapping
+    public ResponseEntity<ReviewResponse> create(@Valid @RequestBody CreateReviewRequest request) {
+        return ResponseEntity.status(201).body(reviewService.create(request, getCurrentUserId()));
+    }
+
+    @PatchMapping("/{id}/album-id")
+    public ResponseEntity<Void> updateAlbumId(@PathVariable UUID id,
+                                              @Valid @RequestBody UpdateAlbumIdRequest request) {
+        reviewService.updateAlbumId(id, request.getAlbumId());
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{id}/author-id")
+    public ResponseEntity<Void> updateAuthorId(@PathVariable UUID id,
+                                               @Valid @RequestBody UpdateAuthorIdRequest request) {
+        reviewService.updateAuthorId(id, request.getAuthorId());
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{id}/score")
+    public ResponseEntity<Void> updateScore(@PathVariable UUID id,
+                                            @Valid @RequestBody UpdateScoreRequest request) {
+        reviewService.updateScore(id, request.getScore());
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{id}/review-text")
+    public ResponseEntity<Void> updateReviewText(@PathVariable UUID id,
+                                                 @Valid @RequestBody UpdateReviewTextRequest request) {
+        reviewService.updateReviewText(id, request.getReviewText());
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable UUID id) {
+        reviewService.delete(id);
+        return ResponseEntity.noContent().build();
+    }
+}

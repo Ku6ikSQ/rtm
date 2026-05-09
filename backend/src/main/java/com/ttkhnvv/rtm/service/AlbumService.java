@@ -6,6 +6,7 @@ import com.ttkhnvv.rtm.entity.album.Album;
 import com.ttkhnvv.rtm.exception.album.AlbumNotFoundException;
 import com.ttkhnvv.rtm.mapper.AlbumMapper;
 import com.ttkhnvv.rtm.repository.album.AlbumRepository;
+import com.ttkhnvv.rtm.repository.review.ReviewRepository;
 import com.ttkhnvv.rtm.service.storage.StorageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class AlbumService {
     private final AlbumRepository albumRepository;
+    private final ReviewRepository reviewRepository;
     private final AlbumMapper albumMapper;
     private final StorageService storageService;
 
@@ -88,6 +90,13 @@ public class AlbumService {
         if (album.getCoverKey() != null)
             response.setCoverUrl(storageService.getPresignedUrl(album.getCoverKey()));
         return response;
+    }
+
+    @Transactional
+    public void recalculateRating(UUID id) {
+        var album = findAlbumById(id);
+        album.setAvgRating(reviewRepository.calculateAvgRating(id).orElse(null));
+        albumRepository.save(album);
     }
 
     private Album findAlbumById(UUID id) {
