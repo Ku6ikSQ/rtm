@@ -3,6 +3,7 @@ package com.ttkhnvv.rtm.config;
 import com.ttkhnvv.rtm.security.jwt.JwtFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -14,6 +15,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import static com.ttkhnvv.rtm.config.ApiConstants.API_PREFIX;
 
 @Configuration
+@EnableMethodSecurity
 public class SpringSecurity {
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
@@ -29,7 +31,49 @@ public class SpringSecurity {
                 .csrf(AbstractHttpConfigurer::disable)
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(API_PREFIX + "/auth/**").permitAll()
+                        .requestMatchers(
+                                api("/auth/register"),
+                                api("/auth/login")
+                        ).permitAll()
+//                        .requestMatchers(
+//                                HttpMethod.GET,
+//                                api("/albums/"),
+//                                api("/albums/{id}")
+//                        ).permitAll()
+//                        .requestMatchers(
+//                                HttpMethod.GET,
+//                                api("/artists/{id}")
+//                        ).permitAll()
+//                        .requestMatchers(
+//                                HttpMethod.GET,
+//                                api("/album-artists/by-album/{albumId}"),
+//                                api("/album-artists/{albumId}/{artistId}")
+//                        ).permitAll()
+//                        .requestMatchers(
+//                                HttpMethod.GET,
+//                                api("/album-genres/by-album/{albumId}"),
+//                                api("/album-genres/{albumId}/{genreId}")
+//                        ).permitAll()
+//                        .requestMatchers(
+//                                HttpMethod.GET,
+//                                api("/genres/"),
+//                                api("/genres/{id}")
+//                        ).permitAll()
+//                        .requestMatchers(
+//                                HttpMethod.GET,
+//                                api("/platforms/"),
+//                                api("/platforms/{id}")
+//                        ).permitAll()
+//                        .requestMatchers(
+//                                HttpMethod.GET,
+//                                api("/tracks/"),
+//                                api("/tracks/{id}")
+//                        ).permitAll()
+//                        .requestMatchers(
+//                                HttpMethod.GET,
+//                                api("/reviews/"),
+//                                api("/reviews/{id}")
+//                        ).permitAll()
                         .requestMatchers(
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
@@ -43,5 +87,9 @@ public class SpringSecurity {
                                 .accessDeniedHandler(accessDeniedHandler)
                 )
                 .build();
+    }
+
+    private static String api(String path) {
+        return API_PREFIX + path;
     }
 }
