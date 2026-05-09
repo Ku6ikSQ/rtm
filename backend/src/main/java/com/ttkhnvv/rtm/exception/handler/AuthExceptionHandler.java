@@ -1,7 +1,6 @@
 package com.ttkhnvv.rtm.exception.handler;
 
 import com.ttkhnvv.rtm.exception.auth.*;
-import com.ttkhnvv.rtm.exception.user.UserNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -50,13 +49,5 @@ public class AuthExceptionHandler {
         var problem = ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN, e.getMessage());
         problem.setTitle("Account Blocked");
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(problem);
-    }
-
-    @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<ProblemDetail> handleUserNotFound(UserNotFoundException e) {
-        log.error("User not found: {}", e.getMessage());
-        var problem = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, e.getMessage());
-        problem.setTitle("User Not Found");
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(problem);
     }
 }
