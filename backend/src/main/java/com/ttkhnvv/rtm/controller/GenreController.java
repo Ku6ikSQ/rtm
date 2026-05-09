@@ -1,13 +1,15 @@
 package com.ttkhnvv.rtm.controller;
 
+import com.ttkhnvv.rtm.dto.PageResponse;
 import com.ttkhnvv.rtm.dto.genre.*;
 import com.ttkhnvv.rtm.service.GenreService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 import static com.ttkhnvv.rtm.config.ApiConstants.API_PREFIX;
@@ -19,8 +21,10 @@ public class GenreController {
     private final GenreService genreService;
 
     @GetMapping
-    public ResponseEntity<List<GenreResponse>> getAll() {
-        return ResponseEntity.ok(genreService.getAll());
+    public ResponseEntity<PageResponse<GenreResponse>> getAll(
+            @ModelAttribute GenreFilter filter,
+            @PageableDefault(size = 20, sort = "name") Pageable pageable) {
+        return ResponseEntity.ok(genreService.getAll(filter, pageable));
     }
 
     @GetMapping("/{id}")

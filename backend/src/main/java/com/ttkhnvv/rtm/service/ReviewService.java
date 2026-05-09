@@ -1,17 +1,20 @@
 package com.ttkhnvv.rtm.service;
 
+import com.ttkhnvv.rtm.dto.PageResponse;
 import com.ttkhnvv.rtm.dto.review.CreateReviewRequest;
+import com.ttkhnvv.rtm.dto.review.ReviewFilter;
 import com.ttkhnvv.rtm.dto.review.ReviewResponse;
 import com.ttkhnvv.rtm.entity.review.Review;
 import com.ttkhnvv.rtm.exception.review.ReviewAlreadyExistsException;
 import com.ttkhnvv.rtm.exception.review.ReviewNotFoundException;
 import com.ttkhnvv.rtm.mapper.ReviewMapper;
 import com.ttkhnvv.rtm.repository.review.ReviewRepository;
+import com.ttkhnvv.rtm.repository.review.ReviewSpecs;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -22,10 +25,14 @@ public class ReviewService {
     private final ReviewMapper reviewMapper;
 
     @Transactional(readOnly = true)
-    public List<ReviewResponse> getAll() {
-        return reviewRepository.findAll().stream()
+    public PageResponse<ReviewResponse> getAll(ReviewFilter filter, Pageable pageable) {
+        var spec = ReviewSpecs.albumIdEquals(filter.getAlbumId())
+                .and(ReviewSpecs.authorIdEquals(filter.getAuthorId()));
+        var page = reviewRepository.findAll(spec, pageable);
+        var content = page.getContent().stream()
                 .map(reviewMapper::toResponse)
                 .toList();
+        return PageResponse.of(page, content);
     }
 
     @Transactional(readOnly = true)

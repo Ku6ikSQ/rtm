@@ -1,17 +1,20 @@
 package com.ttkhnvv.rtm.service;
 
+import com.ttkhnvv.rtm.dto.PageResponse;
 import com.ttkhnvv.rtm.dto.genre.CreateGenreRequest;
+import com.ttkhnvv.rtm.dto.genre.GenreFilter;
 import com.ttkhnvv.rtm.dto.genre.GenreResponse;
 import com.ttkhnvv.rtm.entity.genre.Genre;
 import com.ttkhnvv.rtm.exception.genre.GenreNotFoundException;
 import com.ttkhnvv.rtm.exception.genre.GenreSlugAlreadyTakenException;
 import com.ttkhnvv.rtm.mapper.GenreMapper;
 import com.ttkhnvv.rtm.repository.genre.GenreRepository;
+import com.ttkhnvv.rtm.repository.genre.GenreSpecs;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -21,10 +24,14 @@ public class GenreService {
     private final GenreMapper genreMapper;
 
     @Transactional(readOnly = true)
-    public List<GenreResponse> getAll() {
-        return genreRepository.findAll().stream()
+    public PageResponse<GenreResponse> getAll(GenreFilter filter, Pageable pageable) {
+        var spec = GenreSpecs.nameContains(filter.getName())
+                .and(GenreSpecs.parentIdEquals(filter.getParentId()));
+        var page = genreRepository.findAll(spec, pageable);
+        var content = page.getContent().stream()
                 .map(genreMapper::toResponse)
                 .toList();
+        return PageResponse.of(page, content);
     }
 
     @Transactional(readOnly = true)

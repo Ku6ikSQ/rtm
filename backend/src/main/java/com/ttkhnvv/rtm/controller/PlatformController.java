@@ -1,17 +1,20 @@
 package com.ttkhnvv.rtm.controller;
 
+import com.ttkhnvv.rtm.dto.PageResponse;
 import com.ttkhnvv.rtm.dto.platform.CreatePlatformRequest;
+import com.ttkhnvv.rtm.dto.platform.PlatformFilter;
 import com.ttkhnvv.rtm.dto.platform.PlatformResponse;
 import com.ttkhnvv.rtm.dto.platform.UpdateNameRequest;
 import com.ttkhnvv.rtm.service.PlatformService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
 import java.util.UUID;
 
 import static com.ttkhnvv.rtm.config.ApiConstants.API_PREFIX;
@@ -23,8 +26,10 @@ public class PlatformController {
     private final PlatformService platformService;
 
     @GetMapping
-    public ResponseEntity<List<PlatformResponse>> getAll() {
-        return ResponseEntity.ok(platformService.getAll());
+    public ResponseEntity<PageResponse<PlatformResponse>> getAll(
+            @ModelAttribute PlatformFilter filter,
+            @PageableDefault(size = 20, sort = "name") Pageable pageable) {
+        return ResponseEntity.ok(platformService.getAll(filter, pageable));
     }
 
     @GetMapping("/{id}")

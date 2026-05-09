@@ -1,13 +1,15 @@
 package com.ttkhnvv.rtm.controller;
 
+import com.ttkhnvv.rtm.dto.PageResponse;
 import com.ttkhnvv.rtm.dto.track.*;
 import com.ttkhnvv.rtm.service.TrackService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 import static com.ttkhnvv.rtm.config.ApiConstants.API_PREFIX;
@@ -19,8 +21,10 @@ public class TrackController {
     private final TrackService trackService;
 
     @GetMapping
-    public ResponseEntity<List<TrackResponse>> getAll() {
-        return ResponseEntity.ok(trackService.getAll());
+    public ResponseEntity<PageResponse<TrackResponse>> getAll(
+            @ModelAttribute TrackFilter filter,
+            @PageableDefault(size = 20, sort = "trackNumber") Pageable pageable) {
+        return ResponseEntity.ok(trackService.getAll(filter, pageable));
     }
 
     @GetMapping("/{id}")

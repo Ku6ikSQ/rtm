@@ -1,18 +1,21 @@
 package com.ttkhnvv.rtm.service;
 
+import com.ttkhnvv.rtm.dto.PageResponse;
 import com.ttkhnvv.rtm.dto.platform.CreatePlatformRequest;
+import com.ttkhnvv.rtm.dto.platform.PlatformFilter;
 import com.ttkhnvv.rtm.dto.platform.PlatformResponse;
 import com.ttkhnvv.rtm.entity.platform.Platform;
 import com.ttkhnvv.rtm.exception.platform.PlatformNotFoundException;
 import com.ttkhnvv.rtm.mapper.PlatformMapper;
 import com.ttkhnvv.rtm.repository.platform.PlatformRepository;
+import com.ttkhnvv.rtm.repository.platform.PlatformSpecs;
 import com.ttkhnvv.rtm.service.storage.StorageService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -23,10 +26,13 @@ public class PlatformService {
     private final StorageService storageService;
 
     @Transactional(readOnly = true)
-    public List<PlatformResponse> getAll() {
-        return platformRepository.findAll().stream()
+    public PageResponse<PlatformResponse> getAll(PlatformFilter filter, Pageable pageable) {
+        var spec = PlatformSpecs.nameContains(filter.getName());
+        var page = platformRepository.findAll(spec, pageable);
+        var content = page.getContent().stream()
                 .map(this::toResponseWithLogoUrl)
                 .toList();
+        return PageResponse.of(page, content);
     }
 
     @Transactional(readOnly = true)

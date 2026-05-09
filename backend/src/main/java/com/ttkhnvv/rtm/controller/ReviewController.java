@@ -1,13 +1,16 @@
 package com.ttkhnvv.rtm.controller;
 
+import com.ttkhnvv.rtm.dto.PageResponse;
 import com.ttkhnvv.rtm.dto.review.*;
 import com.ttkhnvv.rtm.service.ReviewService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 import static com.ttkhnvv.rtm.config.ApiConstants.API_PREFIX;
@@ -20,8 +23,10 @@ public class ReviewController {
     private final ReviewService reviewService;
 
     @GetMapping
-    public ResponseEntity<List<ReviewResponse>> getAll() {
-        return ResponseEntity.ok(reviewService.getAll());
+    public ResponseEntity<PageResponse<ReviewResponse>> getAll(
+            @ModelAttribute ReviewFilter filter,
+            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        return ResponseEntity.ok(reviewService.getAll(filter, pageable));
     }
 
     @GetMapping("/{id}")

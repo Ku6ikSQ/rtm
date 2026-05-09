@@ -1,17 +1,20 @@
 package com.ttkhnvv.rtm.service;
 
+import com.ttkhnvv.rtm.dto.PageResponse;
 import com.ttkhnvv.rtm.dto.track.CreateTrackRequest;
+import com.ttkhnvv.rtm.dto.track.TrackFilter;
 import com.ttkhnvv.rtm.dto.track.TrackResponse;
 import com.ttkhnvv.rtm.entity.track.Track;
 import com.ttkhnvv.rtm.exception.track.TrackNotFoundException;
 import com.ttkhnvv.rtm.exception.track.TrackPositionAlreadyTakenException;
 import com.ttkhnvv.rtm.mapper.TrackMapper;
 import com.ttkhnvv.rtm.repository.track.TrackRepository;
+import com.ttkhnvv.rtm.repository.track.TrackSpecs;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -21,10 +24,14 @@ public class TrackService {
     private final TrackMapper trackMapper;
 
     @Transactional(readOnly = true)
-    public List<TrackResponse> getAll() {
-        return trackRepository.findAll().stream()
+    public PageResponse<TrackResponse> getAll(TrackFilter filter, Pageable pageable) {
+        var spec = TrackSpecs.titleContains(filter.getTitle())
+                .and(TrackSpecs.albumIdEquals(filter.getAlbumId()));
+        var page = trackRepository.findAll(spec, pageable);
+        var content = page.getContent().stream()
                 .map(trackMapper::toResponse)
                 .toList();
+        return PageResponse.of(page, content);
     }
 
     @Transactional(readOnly = true)
