@@ -18,6 +18,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.UUID;
 
+/**
+ * Manages streaming platform catalog entries including logo storage.
+ * Platform logos are stored in object storage; presigned URLs are generated on read.
+ */
 @Service
 @RequiredArgsConstructor
 public class PlatformService {
@@ -25,6 +29,14 @@ public class PlatformService {
     private final PlatformMapper platformMapper;
     private final StorageService storageService;
 
+    /**
+     * Returns a paginated list of platforms matching the given filter criteria.
+     * Logo URLs in the response are presigned and valid for 60 minutes.
+     *
+     * @param filter   optional filter (name substring)
+     * @param pageable pagination and sorting parameters
+     * @return page of platform responses
+     */
     @Transactional(readOnly = true)
     public PageResponse<PlatformResponse> getAll(PlatformFilter filter, Pageable pageable) {
         var spec = PlatformSpecs.nameContains(filter.getName());
@@ -35,11 +47,25 @@ public class PlatformService {
         return PageResponse.of(page, content);
     }
 
+    /**
+     * Returns a single platform by its identifier.
+     * The logo URL in the response is presigned and valid for 60 minutes.
+     *
+     * @param id platform identifier
+     * @return platform response with a presigned logo URL if a logo is present
+     * @throws PlatformNotFoundException if no platform was found with the given id
+     */
     @Transactional(readOnly = true)
     public PlatformResponse getById(UUID id) {
         return toResponseWithLogoUrl(findPlatformById(id));
     }
 
+    /**
+     * Creates a new streaming platform entry.
+     *
+     * @param request platform data (name)
+     * @return the created platform response
+     */
     @Transactional
     public PlatformResponse create(CreatePlatformRequest request) {
         var platform = Platform.builder()
@@ -48,6 +74,13 @@ public class PlatformService {
         return platformMapper.toResponse(platformRepository.save(platform));
     }
 
+    /**
+     * Updates the name of a platform.
+     *
+     * @param id   platform identifier
+     * @param name new name
+     * @throws PlatformNotFoundException if no platform was found with the given id
+     */
     @Transactional
     public void updateName(UUID id, String name) {
         var platform = findPlatformById(id);
@@ -55,6 +88,13 @@ public class PlatformService {
         platformRepository.save(platform);
     }
 
+    /**
+     * Replaces the logo of a platform. Deletes the previous logo from storage if one exists.
+     *
+     * @param id   platform identifier
+     * @param file new logo image (jpeg, png or webp)
+     * @throws PlatformNotFoundException if no platform was found with the given id
+     */
     @Transactional
     public void updateLogo(UUID id, MultipartFile file) {
         var platform = findPlatformById(id);
@@ -64,6 +104,12 @@ public class PlatformService {
         platformRepository.save(platform);
     }
 
+    /**
+     * Deletes a platform and its logo from storage if one exists.
+     *
+     * @param id platform identifier
+     * @throws PlatformNotFoundException if no platform was found with the given id
+     */
     @Transactional
     public void delete(UUID id) {
         var platform = findPlatformById(id);

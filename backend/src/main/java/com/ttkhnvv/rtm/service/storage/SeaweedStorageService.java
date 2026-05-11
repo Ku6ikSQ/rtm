@@ -17,6 +17,10 @@ import java.time.Duration;
 import java.util.Set;
 import java.util.UUID;
 
+/**
+ * S3-compatible {@link StorageService} implementation backed by SeaweedFS.
+ * Accepts only image files (jpeg, png, webp). Presigned URLs are valid for 60 minutes.
+ */
 @Service
 @RequiredArgsConstructor
 public class SeaweedStorageService implements StorageService {
@@ -24,6 +28,14 @@ public class SeaweedStorageService implements StorageService {
     private final S3Client s3Client;
     private final S3Presigner s3Presigner;
 
+    /**
+     * Validates and uploads a file to the configured S3 bucket.
+     * The storage key is a UUID prefix combined with the original filename.
+     *
+     * @param file multipart file to upload
+     * @return storage key of the uploaded object
+     * @throws StorageException if the file is empty, has a disallowed content type, or the upload fails
+     */
     @Override
     public String upload(MultipartFile file) {
         if (file.isEmpty())
@@ -45,6 +57,11 @@ public class SeaweedStorageService implements StorageService {
         return key;
     }
 
+    /**
+     * Deletes an object from the configured S3 bucket.
+     *
+     * @param key storage key of the object to delete
+     */
     @Override
     public void delete(String key) {
         s3Client.deleteObject(
@@ -55,6 +72,12 @@ public class SeaweedStorageService implements StorageService {
         );
     }
 
+    /**
+     * Generates a presigned GET URL for the object, valid for 60 minutes.
+     *
+     * @param key storage key of the object
+     * @return presigned URL as a string
+     */
     @Override
     public String getPresignedUrl(String key) {
         var request = GetObjectPresignRequest.builder()

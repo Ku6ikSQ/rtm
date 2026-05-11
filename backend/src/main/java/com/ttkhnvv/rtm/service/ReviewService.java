@@ -17,6 +17,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
+/**
+ * Manages album reviews and enforces one-review-per-user-per-album constraint.
+ * Triggers album average rating recalculation whenever a score-affecting change occurs.
+ */
 @Service
 @RequiredArgsConstructor
 public class ReviewService {
@@ -24,6 +28,13 @@ public class ReviewService {
     private final AlbumService albumService;
     private final ReviewMapper reviewMapper;
 
+    /**
+     * Returns a paginated list of reviews matching the given filter criteria.
+     *
+     * @param filter   optional filters (album id, author id)
+     * @param pageable pagination and sorting parameters
+     * @return page of review responses
+     */
     @Transactional(readOnly = true)
     public PageResponse<ReviewResponse> getAll(ReviewFilter filter, Pageable pageable) {
         var spec = ReviewSpecs.albumIdEquals(filter.getAlbumId())
@@ -35,11 +46,27 @@ public class ReviewService {
         return PageResponse.of(page, content);
     }
 
+    /**
+     * Returns a single review by its identifier.
+     *
+     * @param id review identifier
+     * @return review response
+     * @throws ReviewNotFoundException if no review was found with the given id
+     */
     @Transactional(readOnly = true)
     public ReviewResponse getById(UUID id) {
         return reviewMapper.toResponse(findReviewById(id));
     }
 
+    /**
+     * Creates a new review for an album and triggers album rating recalculation.
+     * Each user may have at most one review per album.
+     *
+     * @param request  review data (albumId, score, review text)
+     * @param authorId identifier of the user submitting the review
+     * @return the created review response
+     * @throws ReviewAlreadyExistsException if the author has already reviewed the target album
+     */
     @Transactional
     public ReviewResponse create(CreateReviewRequest request, UUID authorId) {
         if (reviewRepository.existsByAlbumIdAndAuthorId(request.getAlbumId(), authorId))
@@ -55,6 +82,14 @@ public class ReviewService {
         return reviewMapper.toResponse(saved);
     }
 
+    /**
+     * Moves a review to a different album and recalculates ratings for both the old and new album.
+     *
+     * @param id        review identifier
+     * @param newAlbumId target album identifier
+     * @throws ReviewNotFoundException      if no review was found with the given id
+     * @throws ReviewAlreadyExistsException if the author already has a review for the target album
+     */
     @Transactional
     public void updateAlbumId(UUID id, UUID newAlbumId) {
         var review = findReviewById(id);
@@ -67,6 +102,14 @@ public class ReviewService {
         albumService.recalculateRating(newAlbumId);
     }
 
+    /**
+     * Reassigns a review to a different author.
+     *
+     * @param id       review identifier
+     * @param authorId target author identifier
+     * @throws ReviewNotFoundException      if no review was found with the given id
+     * @throws ReviewAlreadyExistsException if the target author already has a review for the same album
+     */
     @Transactional
     public void updateAuthorId(UUID id, UUID authorId) {
         var review = findReviewById(id);
@@ -76,6 +119,13 @@ public class ReviewService {
         reviewRepository.save(review);
     }
 
+    /**
+     * Updates the score of a review and triggers album rating recalculation.
+     *
+     * @param id    review identifier
+     * @param score new score value
+     * @throws ReviewNotFoundException if no review was found with the given id
+     */
     @Transactional
     public void updateScore(UUID id, Integer score) {
         var review = findReviewById(id);
@@ -84,6 +134,13 @@ public class ReviewService {
         albumService.recalculateRating(review.getAlbumId());
     }
 
+    /**
+     * Updates the text body of a review without affecting the score or album rating.
+     *
+     * @param id         review identifier
+     * @param reviewText new review text
+     * @throws ReviewNotFoundException if no review was found with the given id
+     */
     @Transactional
     public void updateReviewText(UUID id, String reviewText) {
         var review = findReviewById(id);
@@ -91,6 +148,12 @@ public class ReviewService {
         reviewRepository.save(review);
     }
 
+    /**
+     * Deletes a review and triggers album rating recalculation.
+     *
+     * @param id review identifier
+     * @throws ReviewNotFoundException if no review was found with the given id
+     */
     @Transactional
     public void delete(UUID id) {
         var review = findReviewById(id);
