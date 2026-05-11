@@ -9,4 +9,5 @@ import java.util.UUID;
 
 public interface AlbumArtistRepository extends JpaRepository<AlbumArtist, AlbumArtistId> {
     List<AlbumArtist> findAllByAlbumId(UUID albumId);
+    List<AlbumArtist> findAllByAlbumIdIn(List<UUID> albumIds);
 }

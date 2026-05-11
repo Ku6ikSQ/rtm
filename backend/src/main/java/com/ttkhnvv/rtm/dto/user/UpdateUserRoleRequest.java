@@ -1,24 +1,17 @@
 package com.ttkhnvv.rtm.dto.user;
 
 import com.ttkhnvv.rtm.entity.user.UserRole;
+import com.ttkhnvv.rtm.validation.user.ValidUserRole;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.Instant;
-import java.util.UUID;
-
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserResponse {
-    private UUID id;
-    private String username;
-    private String email;
-    private String imageUrl;
+public class UpdateUserRoleRequest {
+    @ValidUserRole
     private UserRole role;
-    private Instant createdAt;
-    private Boolean isActive;
 }

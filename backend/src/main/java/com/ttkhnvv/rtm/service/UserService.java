@@ -1,12 +1,15 @@
 package com.ttkhnvv.rtm.service;
 
+import com.ttkhnvv.rtm.dto.pagination.PageResponse;
 import com.ttkhnvv.rtm.dto.user.UserResponse;
 import com.ttkhnvv.rtm.entity.user.User;
+import com.ttkhnvv.rtm.entity.user.UserRole;
 import com.ttkhnvv.rtm.exception.user.UserNotFoundException;
 import com.ttkhnvv.rtm.mapper.UserMapper;
 import com.ttkhnvv.rtm.repository.token.TokenRepository;
 import com.ttkhnvv.rtm.repository.user.UserRepository;
 import com.ttkhnvv.rtm.service.storage.StorageService;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -29,6 +32,22 @@ public class UserService {
     private final StorageService storageService;
 
     /**
+     * Returns a paginated list of all users.
+     * Avatar URLs in the response are presigned and valid for 60 minutes.
+     *
+     * @param pageable pagination and sorting parameters
+     * @return page of user responses
+     */
+    @Transactional(readOnly = true)
+    public PageResponse<UserResponse> getAll(Pageable pageable) {
+        var page = userRepository.findAll(pageable);
+        var content = page.getContent().stream()
+                .map(this::toResponseWithAvatarUrl)
+                .toList();
+        return PageResponse.of(page, content);
+    }
+
+    /**
      * Returns a single user by their identifier.
      * The image URL in the response is presigned and valid for 60 minutes.
      *
@@ -38,11 +57,7 @@ public class UserService {
      */
     @Transactional(readOnly = true)
     public UserResponse getById(UUID id) {
-        var user = findUserById(id);
-        var response = userMapper.toResponse(user);
-        if (user.getImageKey() != null)
-            response.setImageUrl(storageService.getPresignedUrl(user.getImageKey()));
-        return response;
+        return toResponseWithAvatarUrl(findUserById(id));
     }
 
     /**
@@ -127,6 +142,20 @@ public class UserService {
     }
 
     /**
+     * Updates the role of a user.
+     *
+     * @param id   user identifier
+     * @param role new role
+     * @throws UserNotFoundException if no user was found with the given id
+     */
+    @Transactional
+    public void updateRole(UUID id, UserRole role) {
+        var user = findUserById(id);
+        user.setRole(role);
+        userRepository.save(user);
+    }
+
+    /**
      * Replaces the avatar of a user. Deletes the previous avatar from storage if one exists.
      *
      * @param id   user identifier
@@ -141,6 +170,13 @@ public class UserService {
         var imageKey = storageService.upload(file);
         user.setImageKey(imageKey);
         userRepository.save(user);
+    }
+
+    private UserResponse toResponseWithAvatarUrl(User user) {
+        var response = userMapper.toResponse(user);
+        if (user.getImageKey() != null)
+            response.setImageUrl(storageService.getPresignedUrl(user.getImageKey()));
+        return response;
     }
 
     private User findUserById(UUID id) {

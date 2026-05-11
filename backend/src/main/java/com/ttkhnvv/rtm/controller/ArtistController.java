@@ -1,11 +1,15 @@
 package com.ttkhnvv.rtm.controller;
 
 import com.ttkhnvv.rtm.dto.artist.*;
+import com.ttkhnvv.rtm.dto.pagination.PageResponse;
 import com.ttkhnvv.rtm.security.constraint.HasRoleAny;
 import com.ttkhnvv.rtm.security.constraint.HasRoleTrusted;
 import com.ttkhnvv.rtm.service.ArtistService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +24,14 @@ import static com.ttkhnvv.rtm.config.ApiConstants.API_PREFIX;
 @RequestMapping(API_PREFIX + "/artists")
 public class ArtistController {
     private final ArtistService artistService;
+
+    @HasRoleAny
+    @GetMapping
+    public ResponseEntity<PageResponse<ArtistResponse>> getAll(
+            @ModelAttribute ArtistFilter filter,
+            @PageableDefault(size = 20, sort = "stageName", direction = Sort.Direction.ASC) Pageable pageable) {
+        return ResponseEntity.ok(artistService.getAll(filter, pageable));
+    }
 
     @HasRoleAny
     @GetMapping("/{id}")

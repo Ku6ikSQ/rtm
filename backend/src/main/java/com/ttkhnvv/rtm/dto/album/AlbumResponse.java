@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -22,4 +23,6 @@ public class AlbumResponse {
     private BigDecimal avgRating;
     private Instant createdAt;
     private UUID createdBy;
+    private long reviewCount;
+    private List<AlbumArtistSummary> artists;
 }

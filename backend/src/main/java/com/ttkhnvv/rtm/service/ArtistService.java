@@ -1,13 +1,17 @@
 package com.ttkhnvv.rtm.service;
 
+import com.ttkhnvv.rtm.dto.artist.ArtistFilter;
 import com.ttkhnvv.rtm.dto.artist.ArtistResponse;
 import com.ttkhnvv.rtm.dto.artist.CreateArtistRequest;
+import com.ttkhnvv.rtm.dto.pagination.PageResponse;
 import com.ttkhnvv.rtm.entity.artist.Artist;
 import com.ttkhnvv.rtm.exception.artist.ArtistNotFoundException;
 import com.ttkhnvv.rtm.mapper.ArtistMapper;
 import com.ttkhnvv.rtm.repository.artist.ArtistRepository;
+import com.ttkhnvv.rtm.repository.artist.ArtistSpecs;
 import com.ttkhnvv.rtm.service.storage.StorageService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -26,6 +30,24 @@ public class ArtistService {
     private final StorageService storageService;
 
     /**
+     * Returns a paginated list of artists matching the given filter criteria.
+     * Image URLs in the response are presigned and valid for 60 minutes.
+     *
+     * @param filter   optional filters (stage name substring)
+     * @param pageable pagination and sorting parameters
+     * @return page of artist responses
+     */
+    @Transactional(readOnly = true)
+    public PageResponse<ArtistResponse> getAll(ArtistFilter filter, Pageable pageable) {
+        var spec = ArtistSpecs.stageNameContains(filter.getStageName());
+        var page = artistRepository.findAll(spec, pageable);
+        var content = page.getContent().stream()
+                .map(this::toResponseWithImageUrl)
+                .toList();
+        return PageResponse.of(page, content);
+    }
+
+    /**
      * Returns a single artist by their identifier.
      * The image URL in the response is presigned and valid for 60 minutes.
      *
@@ -35,11 +57,7 @@ public class ArtistService {
      */
     @Transactional(readOnly = true)
     public ArtistResponse getById(UUID id) {
-        var artist = findArtistById(id);
-        var response = artistMapper.toResponse(artist);
-        if (artist.getImageKey() != null)
-            response.setImageUrl(storageService.getPresignedUrl(artist.getImageKey()));
-        return response;
+        return toResponseWithImageUrl(findArtistById(id));
     }
 
     /**
@@ -143,6 +161,13 @@ public class ArtistService {
         if (artist.getImageKey() != null)
             storageService.delete(artist.getImageKey());
         artistRepository.deleteById(id);
+    }
+
+    private ArtistResponse toResponseWithImageUrl(Artist artist) {
+        var response = artistMapper.toResponse(artist);
+        if (artist.getImageKey() != null)
+            response.setImageUrl(storageService.getPresignedUrl(artist.getImageKey()));
+        return response;
     }
 
     private Artist findArtistById(UUID id) {

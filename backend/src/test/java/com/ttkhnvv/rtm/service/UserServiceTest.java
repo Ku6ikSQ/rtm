@@ -1,5 +1,6 @@
 package com.ttkhnvv.rtm.service;
 
+import com.ttkhnvv.rtm.dto.pagination.PageResponse;
 import com.ttkhnvv.rtm.dto.user.UserResponse;
 import com.ttkhnvv.rtm.entity.user.User;
 import com.ttkhnvv.rtm.entity.user.UserRole;
@@ -15,9 +16,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -65,6 +69,38 @@ class UserServiceTest {
                 .username(user.getUsername())
                 .email(user.getEmail())
                 .build();
+    }
+
+    @Nested
+    class GetAll {
+        @Test
+        void shouldReturnPageOfUsers() {
+            // given
+            var pageable = Pageable.unpaged();
+            var page = new PageImpl<>(List.of(user));
+            when(userRepository.findAll(pageable)).thenReturn(page);
+            when(userMapper.toResponse(user)).thenReturn(userResponse);
+
+            // when
+            var result = userService.getAll(pageable);
+
+            // then
+            assertThat(result.getContent()).containsExactly(userResponse);
+            assertThat(result.getTotalElements()).isEqualTo(1);
+        }
+
+        @Test
+        void shouldReturnEmptyPage_whenNoUsersExist() {
+            // given
+            var pageable = Pageable.unpaged();
+            when(userRepository.findAll(pageable)).thenReturn(new PageImpl<>(List.of()));
+
+            // when
+            var result = userService.getAll(pageable);
+
+            // then
+            assertThat(result.getContent()).isEmpty();
+        }
     }
 
     @Nested
@@ -254,6 +290,32 @@ class UserServiceTest {
             assertThatThrownBy(() -> userService.updatePassword(user.getId(), "new_password"))
                     .isInstanceOf(UserNotFoundException.class);
             verify(tokenRepository, never()).delete(any());
+        }
+    }
+
+    @Nested
+    class UpdateRole {
+        @Test
+        void shouldUpdateRole_whenUserExists() {
+            // given
+            when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+
+            // when
+            userService.updateRole(user.getId(), UserRole.MODERATOR);
+
+            // then
+            assertThat(user.getRole()).isEqualTo(UserRole.MODERATOR);
+            verify(userRepository).save(user);
+        }
+
+        @Test
+        void shouldThrowException_whenUserNotFound() {
+            // given
+            when(userRepository.findById(user.getId())).thenReturn(Optional.empty());
+
+            // when/then
+            assertThatThrownBy(() -> userService.updateRole(user.getId(), UserRole.ADMIN))
+                    .isInstanceOf(UserNotFoundException.class);
         }
     }
 

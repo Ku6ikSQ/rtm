@@ -1,11 +1,16 @@
 package com.ttkhnvv.rtm.controller;
 
+import com.ttkhnvv.rtm.dto.pagination.PageResponse;
 import com.ttkhnvv.rtm.dto.user.*;
+import com.ttkhnvv.rtm.security.constraint.HasRoleAdmin;
 import com.ttkhnvv.rtm.security.constraint.HasRoleTrusted;
 import com.ttkhnvv.rtm.security.constraint.HasRoleUser;
 import com.ttkhnvv.rtm.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +26,13 @@ import static com.ttkhnvv.rtm.security.util.SecurityUtils.getCurrentUserId;
 @RequestMapping(API_PREFIX + "/users")
 public class UserController {
     private final UserService userService;
+
+    @HasRoleTrusted
+    @GetMapping
+    public ResponseEntity<PageResponse<UserResponse>> getAll(
+            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        return ResponseEntity.ok(userService.getAll(pageable));
+    }
 
     @HasRoleTrusted
     @GetMapping("/{id}")
@@ -40,6 +52,14 @@ public class UserController {
     @PostMapping("/{id}/unblock")
     public ResponseEntity<Void> unblock(@PathVariable UUID id) {
         userService.unblock(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @HasRoleAdmin
+    @PatchMapping("/{id}/role")
+    public ResponseEntity<Void> updateRole(@PathVariable UUID id,
+                                           @Valid @RequestBody UpdateUserRoleRequest request) {
+        userService.updateRole(id, request.getRole());
         return ResponseEntity.noContent().build();
     }
 

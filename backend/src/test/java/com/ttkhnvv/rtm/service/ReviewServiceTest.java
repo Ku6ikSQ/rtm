@@ -4,10 +4,14 @@ import com.ttkhnvv.rtm.dto.review.CreateReviewRequest;
 import com.ttkhnvv.rtm.dto.review.ReviewFilter;
 import com.ttkhnvv.rtm.dto.review.ReviewResponse;
 import com.ttkhnvv.rtm.entity.review.Review;
+import com.ttkhnvv.rtm.entity.user.User;
+import com.ttkhnvv.rtm.entity.user.UserRole;
 import com.ttkhnvv.rtm.exception.review.ReviewAlreadyExistsException;
 import com.ttkhnvv.rtm.exception.review.ReviewNotFoundException;
 import com.ttkhnvv.rtm.mapper.ReviewMapper;
 import com.ttkhnvv.rtm.repository.review.ReviewRepository;
+import com.ttkhnvv.rtm.repository.user.UserRepository;
+import com.ttkhnvv.rtm.service.storage.StorageService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -40,6 +44,10 @@ class ReviewServiceTest {
     private AlbumService albumService;
     @Mock
     private ReviewMapper reviewMapper;
+    @Mock
+    private UserRepository userRepository;
+    @Mock
+    private StorageService storageService;
 
     @InjectMocks
     private ReviewService reviewService;
@@ -81,12 +89,35 @@ class ReviewServiceTest {
             var pageable = Pageable.unpaged();
             when(reviewRepository.findAll((Specification<Review>) any(), any(Pageable.class))).thenReturn(new PageImpl<>(List.of(review)));
             when(reviewMapper.toResponse(review)).thenReturn(reviewResponse);
+            when(userRepository.findAllById(any())).thenReturn(List.of());
 
             // when
             var result = reviewService.getAll(filter, pageable);
 
             // then
             assertThat(result.getContent()).containsExactly(reviewResponse);
+        }
+
+        @Test
+        void shouldEmbedAuthorInfo_whenAuthorExists() {
+            // given
+            var author = User.builder()
+                    .id(authorId)
+                    .username("testuser")
+                    .role(UserRole.USER)
+                    .isActive(true)
+                    .build();
+            var filter = new ReviewFilter();
+            var pageable = Pageable.unpaged();
+            when(reviewRepository.findAll((Specification<Review>) any(), any(Pageable.class))).thenReturn(new PageImpl<>(List.of(review)));
+            when(reviewMapper.toResponse(review)).thenReturn(reviewResponse);
+            when(userRepository.findAllById(List.of(authorId))).thenReturn(List.of(author));
+
+            // when
+            var result = reviewService.getAll(filter, pageable);
+
+            // then
+            assertThat(result.getContent().get(0).getAuthorUsername()).isEqualTo("testuser");
         }
 
         @Test
@@ -111,12 +142,33 @@ class ReviewServiceTest {
             // given
             when(reviewRepository.findById(reviewId)).thenReturn(Optional.of(review));
             when(reviewMapper.toResponse(review)).thenReturn(reviewResponse);
+            when(userRepository.findById(authorId)).thenReturn(Optional.empty());
 
             // when
             var result = reviewService.getById(reviewId);
 
             // then
             assertThat(result).isEqualTo(reviewResponse);
+        }
+
+        @Test
+        void shouldEmbedAuthorInfo_whenAuthorExists() {
+            // given
+            var author = User.builder()
+                    .id(authorId)
+                    .username("testuser")
+                    .role(UserRole.USER)
+                    .isActive(true)
+                    .build();
+            when(reviewRepository.findById(reviewId)).thenReturn(Optional.of(review));
+            when(reviewMapper.toResponse(review)).thenReturn(reviewResponse);
+            when(userRepository.findById(authorId)).thenReturn(Optional.of(author));
+
+            // when
+            var result = reviewService.getById(reviewId);
+
+            // then
+            assertThat(result.getAuthorUsername()).isEqualTo("testuser");
         }
 
         @Test

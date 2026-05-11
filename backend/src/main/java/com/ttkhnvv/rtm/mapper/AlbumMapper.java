@@ -8,5 +8,7 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface AlbumMapper {
     @Mapping(target = "coverUrl", ignore = true)
+    @Mapping(target = "reviewCount", ignore = true)
+    @Mapping(target = "artists", ignore = true)
     AlbumResponse toResponse(Album album);
 }

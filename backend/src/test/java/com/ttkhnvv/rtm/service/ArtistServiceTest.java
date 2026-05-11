@@ -1,5 +1,6 @@
 package com.ttkhnvv.rtm.service;
 
+import com.ttkhnvv.rtm.dto.artist.ArtistFilter;
 import com.ttkhnvv.rtm.dto.artist.ArtistResponse;
 import com.ttkhnvv.rtm.dto.artist.CreateArtistRequest;
 import com.ttkhnvv.rtm.entity.artist.Artist;
@@ -14,8 +15,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -61,6 +66,40 @@ class ArtistServiceTest {
                 .bio("Bio text")
                 .country("US")
                 .build();
+    }
+
+    @Nested
+    class GetAll {
+        @Test
+        void shouldReturnPageOfArtists_whenFilterMatches() {
+            // given
+            var filter = ArtistFilter.builder().stageName("Stage").build();
+            var pageable = Pageable.unpaged();
+            var page = new PageImpl<>(List.of(artist));
+            when(artistRepository.findAll((Specification<Artist>) any(), any(Pageable.class))).thenReturn(page);
+            when(artistMapper.toResponse(artist)).thenReturn(artistResponse);
+
+            // when
+            var result = artistService.getAll(filter, pageable);
+
+            // then
+            assertThat(result.getContent()).containsExactly(artistResponse);
+            assertThat(result.getTotalElements()).isEqualTo(1);
+        }
+
+        @Test
+        void shouldReturnEmptyPage_whenNoArtistsMatch() {
+            // given
+            var filter = ArtistFilter.builder().build();
+            var pageable = Pageable.unpaged();
+            when(artistRepository.findAll((Specification<Artist>) any(), any(Pageable.class))).thenReturn(new PageImpl<>(List.of()));
+
+            // when
+            var result = artistService.getAll(filter, pageable);
+
+            // then
+            assertThat(result.getContent()).isEmpty();
+        }
     }
 
     @Nested

@@ -4,10 +4,11 @@ import com.ttkhnvv.rtm.dto.album.AlbumFilter;
 import com.ttkhnvv.rtm.dto.album.AlbumResponse;
 import com.ttkhnvv.rtm.dto.album.CreateAlbumRequest;
 import com.ttkhnvv.rtm.entity.album.Album;
-import com.ttkhnvv.rtm.entity.track.Track;
 import com.ttkhnvv.rtm.exception.album.AlbumNotFoundException;
 import com.ttkhnvv.rtm.mapper.AlbumMapper;
 import com.ttkhnvv.rtm.repository.album.AlbumRepository;
+import com.ttkhnvv.rtm.repository.albumartist.AlbumArtistRepository;
+import com.ttkhnvv.rtm.repository.artist.ArtistRepository;
 import com.ttkhnvv.rtm.repository.review.ReviewRepository;
 import com.ttkhnvv.rtm.service.storage.StorageService;
 import org.junit.jupiter.api.BeforeEach;
@@ -43,6 +44,10 @@ class AlbumServiceTest {
     private AlbumRepository albumRepository;
     @Mock
     private ReviewRepository reviewRepository;
+    @Mock
+    private AlbumArtistRepository albumArtistRepository;
+    @Mock
+    private ArtistRepository artistRepository;
     @Mock
     private AlbumMapper albumMapper;
     @Mock
@@ -82,6 +87,8 @@ class AlbumServiceTest {
             var page = new PageImpl<>(List.of(album));
             when(albumRepository.findAll((Specification<Album>) any(), any(Pageable.class))).thenReturn(page);
             when(albumMapper.toResponse(album)).thenReturn(albumResponse);
+            when(albumArtistRepository.findAllByAlbumIdIn(any())).thenReturn(List.of());
+            when(reviewRepository.countGroupedByAlbumIdIn(any())).thenReturn(List.of());
 
             // when
             var result = albumService.getAll(filter, pageable);
@@ -113,6 +120,8 @@ class AlbumServiceTest {
             // given
             when(albumRepository.findById(albumId)).thenReturn(Optional.of(album));
             when(albumMapper.toResponse(album)).thenReturn(albumResponse);
+            when(albumArtistRepository.findAllByAlbumId(albumId)).thenReturn(List.of());
+            when(reviewRepository.countByAlbumId(albumId)).thenReturn(0L);
 
             // when
             var result = albumService.getById(albumId);
@@ -129,6 +138,8 @@ class AlbumServiceTest {
             albumResponse.setCoverUrl("http://presigned-url");
             when(albumRepository.findById(albumId)).thenReturn(Optional.of(album));
             when(albumMapper.toResponse(album)).thenReturn(albumResponse);
+            when(albumArtistRepository.findAllByAlbumId(albumId)).thenReturn(List.of());
+            when(reviewRepository.countByAlbumId(albumId)).thenReturn(0L);
             when(storageService.getPresignedUrl("cover-key")).thenReturn("http://presigned-url");
 
             // when

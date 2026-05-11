@@ -5,21 +5,27 @@ import com.ttkhnvv.rtm.dto.review.CreateReviewRequest;
 import com.ttkhnvv.rtm.dto.review.ReviewFilter;
 import com.ttkhnvv.rtm.dto.review.ReviewResponse;
 import com.ttkhnvv.rtm.entity.review.Review;
+import com.ttkhnvv.rtm.entity.user.User;
 import com.ttkhnvv.rtm.exception.review.ReviewAlreadyExistsException;
 import com.ttkhnvv.rtm.exception.review.ReviewNotFoundException;
 import com.ttkhnvv.rtm.mapper.ReviewMapper;
 import com.ttkhnvv.rtm.repository.review.ReviewRepository;
 import com.ttkhnvv.rtm.repository.review.ReviewSpecs;
+import com.ttkhnvv.rtm.repository.user.UserRepository;
+import com.ttkhnvv.rtm.service.storage.StorageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * Manages album reviews and enforces one-review-per-user-per-album constraint.
  * Triggers album average rating recalculation whenever a score-affecting change occurs.
+ * Author info is fetched in batch to avoid N+1 queries when listing reviews.
  */
 @Service
 @RequiredArgsConstructor
@@ -27,9 +33,12 @@ public class ReviewService {
     private final ReviewRepository reviewRepository;
     private final AlbumService albumService;
     private final ReviewMapper reviewMapper;
+    private final UserRepository userRepository;
+    private final StorageService storageService;
 
     /**
      * Returns a paginated list of reviews matching the given filter criteria.
+     * Author username and avatar URL are embedded in each response — no N+1.
      *
      * @param filter   optional filters (album id, author id)
      * @param pageable pagination and sorting parameters
@@ -40,22 +49,32 @@ public class ReviewService {
         var spec = ReviewSpecs.albumIdEquals(filter.getAlbumId())
                 .and(ReviewSpecs.authorIdEquals(filter.getAuthorId()));
         var page = reviewRepository.findAll(spec, pageable);
+
+        var authorIds = page.getContent().stream().map(Review::getAuthorId).distinct().toList();
+        var authorMap = authorIds.isEmpty() ? Map.<UUID, User>of() :
+                userRepository.findAllById(authorIds).stream()
+                        .collect(Collectors.toMap(User::getId, u -> u));
+
         var content = page.getContent().stream()
-                .map(reviewMapper::toResponse)
+                .map(review -> toResponseWithAuthor(review, authorMap))
                 .toList();
         return PageResponse.of(page, content);
     }
 
     /**
      * Returns a single review by its identifier.
+     * Author username and avatar URL are included in the response.
      *
      * @param id review identifier
-     * @return review response
+     * @return review response with embedded author info
      * @throws ReviewNotFoundException if no review was found with the given id
      */
     @Transactional(readOnly = true)
     public ReviewResponse getById(UUID id) {
-        return reviewMapper.toResponse(findReviewById(id));
+        var review = findReviewById(id);
+        var author = userRepository.findById(review.getAuthorId()).orElse(null);
+        var authorMap = author != null ? Map.of(author.getId(), author) : Map.<UUID, User>of();
+        return toResponseWithAuthor(review, authorMap);
     }
 
     /**
@@ -160,6 +179,17 @@ public class ReviewService {
         UUID albumId = review.getAlbumId();
         reviewRepository.deleteById(id);
         albumService.recalculateRating(albumId);
+    }
+
+    private ReviewResponse toResponseWithAuthor(Review review, Map<UUID, User> authorMap) {
+        var response = reviewMapper.toResponse(review);
+        var author = authorMap.get(review.getAuthorId());
+        if (author != null) {
+            response.setAuthorUsername(author.getUsername());
+            if (author.getImageKey() != null)
+                response.setAuthorImageUrl(storageService.getPresignedUrl(author.getImageKey()));
+        }
+        return response;
     }
 
     private Review findReviewById(UUID id) {

@@ -20,4 +20,6 @@ public class ReviewResponse {
     private String reviewText;
     private Instant createdAt;
     private Instant updatedAt;
+    private String authorUsername;
+    private String authorImageUrl;
 }
