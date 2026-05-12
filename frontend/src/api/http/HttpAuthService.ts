@@ -41,9 +41,12 @@ export class HttpAuthService implements IAuthService {
   }
 
   async logout(refreshToken: string): Promise<void> {
-    await post('/api/v1/auth/logout', { refreshToken })
-    setAccessToken(null)
-    localStorage.removeItem('rtm-refresh')
+    try {
+      await post('/api/v1/auth/logout', { refreshToken })
+    } finally {
+      setAccessToken(null)
+      localStorage.removeItem('rtm-refresh')
+    }
   }
 
   async refreshToken(refreshToken: string): Promise<AuthTokens> {

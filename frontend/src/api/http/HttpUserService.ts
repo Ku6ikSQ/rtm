@@ -47,17 +47,14 @@ export class HttpUserService implements IUserService {
     return mapUser(raw)
   }
 
-  async updateProfile(id: string, dto: UpdateProfileDto): Promise<User> {
-    const isSelf = id === 'me'
-    const base = isSelf ? '/api/v1/users/me' : `/api/v1/users/${id}`
-
+  async updateProfile(dto: UpdateProfileDto): Promise<User> {
     const patches: Promise<unknown>[] = []
     if (dto.username !== undefined) {
-      patches.push(patch(`${base}/username`, { username: dto.username }))
+      patches.push(patch('/api/v1/users/me/username', { username: dto.username }))
     }
     await Promise.all(patches)
 
-    const raw = await get<BackendUserResponse>(isSelf ? '/api/v1/users/me' : `/api/v1/users/${id}`)
+    const raw = await get<BackendUserResponse>('/api/v1/users/me')
     return mapUser(raw)
   }
 

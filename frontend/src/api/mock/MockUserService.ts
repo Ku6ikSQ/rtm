@@ -17,8 +17,10 @@ export class MockUserService implements IUserService {
     return user
   }
 
-  async updateProfile(id: string, dto: UpdateProfileDto): Promise<User> {
+  async updateProfile(dto: UpdateProfileDto): Promise<User> {
     await delay(300)
+    const id = sessionStorage.getItem('rtm-mock-uid')
+    if (!id) throw new ApiError(401, 'Необходимо войти в аккаунт')
     const idx = mockUsers.findIndex((u) => u.id === id)
     if (idx === -1) throw new ApiError(404, 'Пользователь не найден')
     if (dto.username && mockUsers.find((u) => u.username === dto.username && u.id !== id)) {

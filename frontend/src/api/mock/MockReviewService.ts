@@ -26,6 +26,13 @@ export class MockReviewService implements IReviewService {
       .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
   }
 
+  async getRecent(limit: number): Promise<Review[]> {
+    await delay(250)
+    return [...mockReviews]
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+      .slice(0, limit)
+  }
+
   async getByUser(userId: string): Promise<Review[]> {
     await delay(250)
     return mockReviews

@@ -16,17 +16,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     async function restoreSession() {
+      const refreshToken = localStorage.getItem('rtm-refresh')
+      if (!refreshToken) {
+        setLoading(false)
+        return
+      }
       try {
+        const tokens = await authService.refreshToken(refreshToken)
+        setAccessToken(tokens.accessToken)
         const user = await authService.getMe()
         setUser(user)
       } catch {
-        // no active session
+        localStorage.removeItem('rtm-refresh')
       } finally {
         setLoading(false)
       }
     }
     restoreSession()
-  }, [setUser, setLoading])
+  }, [setUser, setAccessToken, setLoading])
 
   async function login(dto: LoginDto) {
     const tokens = await authService.login(dto)
@@ -43,9 +50,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   async function logout() {
-    const token = useAuthStore.getState().accessToken ?? ''
+    const refreshToken = localStorage.getItem('rtm-refresh') ?? ''
     try {
-      await authService.logout(token)
+      await authService.logout(refreshToken)
     } catch {
       // ignore
     } finally {

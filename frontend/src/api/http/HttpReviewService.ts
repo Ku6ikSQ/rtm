@@ -45,6 +45,13 @@ export class HttpReviewService implements IReviewService {
     return page.content.map(mapReview)
   }
 
+  async getRecent(limit: number): Promise<Review[]> {
+    const page = await get<BackendPage<BackendReviewResponse>>(
+      `/api/v1/reviews?size=${limit}&sort=createdAt,desc`
+    )
+    return page.content.map(mapReview)
+  }
+
   async getByUser(userId: string): Promise<Review[]> {
     const page = await get<BackendPage<BackendReviewResponse>>(
       `/api/v1/reviews?authorId=${userId}&size=100&sort=createdAt,desc`

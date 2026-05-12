@@ -47,7 +47,7 @@ export function ProfilePage() {
   const passwordForm = useForm<ChangePasswordDto>({ resolver: zodResolver(passwordSchema) })
 
   const updateProfile = useMutation({
-    mutationFn: (dto: UpdateProfileDto) => userService.updateProfile(user!.id, dto),
+    mutationFn: (dto: UpdateProfileDto) => userService.updateProfile(dto),
     onSuccess: (updated) => {
       queryClient.setQueryData(['me'], updated)
       toast.success('Профиль обновлён')

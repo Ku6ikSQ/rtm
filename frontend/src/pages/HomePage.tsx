@@ -22,16 +22,9 @@ export function HomePage() {
     queryFn: () => genreService.getAll(),
   })
 
-  // Recent reviews: album 1 has the most reviews in mock data
   const { data: recentReviews = [] } = useQuery({
-    queryKey: ['reviews', 'album', '1'],
-    queryFn: () => reviewService.getByAlbum('1'),
-    select: (data) => data.slice(0, 4),
-  })
-
-  const { data: album1 } = useQuery({
-    queryKey: ['album', '1'],
-    queryFn: () => albumService.getById('1'),
+    queryKey: ['reviews', 'recent'],
+    queryFn: () => reviewService.getRecent(4),
   })
 
   function handleSearch(e: React.FormEvent) {
@@ -113,11 +106,11 @@ export function HomePage() {
                 className="flex gap-3 rounded border border-border p-3 transition-colors hover:border-foreground/40"
               >
                 <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded border border-border bg-muted text-xl font-bold text-muted-foreground">
-                  {album1?.title?.[0] ?? '?'}
+                  ♪
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-start justify-between gap-2">
-                    <p className="truncate text-sm font-medium">{album1?.title ?? `Альбом #${review.albumId}`}</p>
+                    <p className="truncate text-sm font-medium">{`Альбом #${review.albumId}`}</p>
                     <RatingBadge rating={review.score} size="sm" className="flex-shrink-0" />
                   </div>
                   <p className="mt-0.5 text-xs text-muted-foreground">
