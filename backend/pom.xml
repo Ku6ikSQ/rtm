@@ -131,7 +131,7 @@
 	</dependencies>
 
 	<build>
-		<directory>${project.basedir}/target</directory>
+		<directory>${project.basedir}/backend/target</directory>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
@@ -167,6 +167,7 @@
 									<version>1.5.5.Final</version>
 								</path>
 							</annotationProcessorPaths>
+							<generatedSourcesDirectory>${project.build.directory}/generated-sources/annotations</generatedSourcesDirectory>
 						</configuration>
 					</execution>
 					<execution>
