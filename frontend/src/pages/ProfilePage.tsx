@@ -225,11 +225,21 @@ function ReviewsTab({ userId }: { userId: string }) {
 }
 
 function SecurityTab({ form }: { form: ReturnType<typeof useForm<ChangePasswordDto>> }) {
+  const mutation = useMutation({
+    mutationFn: (dto: ChangePasswordDto) => userService.updatePassword(dto.newPassword),
+    onSuccess: () => {
+      toast.success('Пароль изменён')
+      form.reset()
+    },
+    onError: (err) => {
+      if (!applyServerErrors(err, form.setError)) {
+        toast.error(err instanceof Error ? err.message : 'Ошибка при смене пароля')
+      }
+    },
+  })
+
   return (
-    <form
-      className="space-y-4"
-      onSubmit={form.handleSubmit(() => toast.info('Смена пароля будет доступна после подключения backend'))}
-    >
+    <form className="space-y-4" onSubmit={form.handleSubmit((data) => mutation.mutate(data))}>
       {(
         [
           { name: 'currentPassword' as const, label: 'Текущий пароль' },
@@ -251,7 +261,8 @@ function SecurityTab({ form }: { form: ReturnType<typeof useForm<ChangePasswordD
       ))}
       <button
         type="submit"
-        className="h-9 rounded bg-foreground px-5 text-sm font-medium text-background"
+        disabled={mutation.isPending}
+        className="h-9 rounded bg-foreground px-5 text-sm font-medium text-background disabled:opacity-50"
       >
         Изменить пароль
       </button>

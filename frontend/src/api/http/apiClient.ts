@@ -92,3 +92,10 @@ export function patch<T>(path: string, body?: unknown): Promise<T> {
 export function del(path: string): Promise<void> {
   return request<void>(path, { method: 'DELETE' })
 }
+
+export async function uploadFile(path: string, file: File): Promise<void> {
+  const form = new FormData()
+  form.append('file', file)
+  // Let the browser set Content-Type with boundary for multipart
+  await request<void>(path, { method: 'PUT', body: form, headers: {} })
+}

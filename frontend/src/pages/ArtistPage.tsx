@@ -15,7 +15,9 @@ export function ArtistPage() {
 
   const { data: albumsPage, isLoading: loadingAlbums } = useQuery({
     queryKey: ['albums', { artistId: id }],
-    queryFn: () => albumService.getAll({ size: 24 }),
+    // artistId filter: backend will use it after update (see docs/backend-update.md #10).
+    // Client-side filter below is a safety fallback for partial backend support.
+    queryFn: () => albumService.getAll({ artistId: id, size: 100 }),
     enabled: !!id,
   })
 

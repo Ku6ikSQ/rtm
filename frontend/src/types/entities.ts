@@ -174,6 +174,7 @@ export interface AuthTokens {
 export interface AlbumFilters {
   q?: string
   genreId?: string
+  artistId?: string
   yearFrom?: number
   yearTo?: number
   ratingMin?: number

@@ -43,4 +43,9 @@ export class MockUserService implements IUserService {
     mockUsers[idx] = { ...mockUsers[idx], role }
     return mockUsers[idx]
   }
+
+  async updatePassword(_password: string): Promise<void> {
+    await delay(300)
+    // Mock: accepts any password without verification
+  }
 }

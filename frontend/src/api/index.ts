@@ -1,5 +1,6 @@
 import type { IAuthService } from './interfaces/IAuthService'
 import type { IAlbumService } from './interfaces/IAlbumService'
+import type { IAlbumLinkService } from './interfaces/IAlbumLinkService'
 import type { IArtistService } from './interfaces/IArtistService'
 import type { IGenreService } from './interfaces/IGenreService'
 import type { IPlatformService } from './interfaces/IPlatformService'
@@ -15,6 +16,7 @@ function makeMock<M, H>(MockCtor: new () => M, HttpCtor: new () => H): M | H {
 
 import { MockAuthService } from './mock/MockAuthService'
 import { MockAlbumService } from './mock/MockAlbumService'
+import { MockAlbumLinkService } from './mock/MockAlbumLinkService'
 import { MockArtistService } from './mock/MockArtistService'
 import { MockGenreService } from './mock/MockGenreService'
 import { MockPlatformService } from './mock/MockPlatformService'
@@ -24,6 +26,7 @@ import { MockUserService } from './mock/MockUserService'
 
 import { HttpAuthService } from './http/HttpAuthService'
 import { HttpAlbumService } from './http/HttpAlbumService'
+import { HttpAlbumLinkService } from './http/HttpAlbumLinkService'
 import { HttpArtistService } from './http/HttpArtistService'
 import { HttpGenreService } from './http/HttpGenreService'
 import { HttpPlatformService } from './http/HttpPlatformService'
@@ -33,6 +36,7 @@ import { HttpUserService } from './http/HttpUserService'
 
 export const authService: IAuthService = makeMock(MockAuthService, HttpAuthService)
 export const albumService: IAlbumService = makeMock(MockAlbumService, HttpAlbumService)
+export const albumLinkService: IAlbumLinkService = makeMock(MockAlbumLinkService, HttpAlbumLinkService)
 export const artistService: IArtistService = makeMock(MockArtistService, HttpArtistService)
 export const genreService: IGenreService = makeMock(MockGenreService, HttpGenreService)
 export const platformService: IPlatformService = makeMock(MockPlatformService, HttpPlatformService)
