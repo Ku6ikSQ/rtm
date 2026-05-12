@@ -7,6 +7,7 @@ import com.ttkhnvv.rtm.security.constraint.HasRoleUser;
 import com.ttkhnvv.rtm.service.ReviewService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -27,8 +28,8 @@ public class ReviewController {
     @HasRoleAny
     @GetMapping
     public ResponseEntity<PageResponse<ReviewResponse>> getAll(
-            @ModelAttribute ReviewFilter filter,
-            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+            @ParameterObject @ModelAttribute ReviewFilter filter,
+            @ParameterObject @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
         return ResponseEntity.ok(reviewService.getAll(filter, pageable));
     }
 

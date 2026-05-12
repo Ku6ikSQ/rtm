@@ -7,6 +7,7 @@ import com.ttkhnvv.rtm.security.constraint.HasRoleTrusted;
 import com.ttkhnvv.rtm.service.GenreService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
@@ -25,8 +26,8 @@ public class GenreController {
     @HasRoleAny
     @GetMapping
     public ResponseEntity<PageResponse<GenreResponse>> getAll(
-            @ModelAttribute GenreFilter filter,
-            @PageableDefault(size = 20, sort = "name") Pageable pageable) {
+            @ParameterObject @ModelAttribute GenreFilter filter,
+            @ParameterObject @PageableDefault(size = 20, sort = "name") Pageable pageable) {
         return ResponseEntity.ok(genreService.getAll(filter, pageable));
     }
 

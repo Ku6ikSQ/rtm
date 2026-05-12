@@ -7,6 +7,7 @@ import com.ttkhnvv.rtm.security.constraint.HasRoleTrusted;
 import com.ttkhnvv.rtm.service.TrackService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
@@ -25,8 +26,8 @@ public class TrackController {
     @HasRoleAny
     @GetMapping
     public ResponseEntity<PageResponse<TrackResponse>> getAll(
-            @ModelAttribute TrackFilter filter,
-            @PageableDefault(size = 20, sort = "trackNumber") Pageable pageable) {
+            @ParameterObject @ModelAttribute TrackFilter filter,
+            @ParameterObject @PageableDefault(size = 20, sort = "trackNumber") Pageable pageable) {
         return ResponseEntity.ok(trackService.getAll(filter, pageable));
     }
 

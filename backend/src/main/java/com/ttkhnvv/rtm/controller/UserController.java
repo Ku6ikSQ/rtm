@@ -8,6 +8,7 @@ import com.ttkhnvv.rtm.security.constraint.HasRoleUser;
 import com.ttkhnvv.rtm.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -30,7 +31,7 @@ public class UserController {
     @HasRoleTrusted
     @GetMapping
     public ResponseEntity<PageResponse<UserResponse>> getAll(
-            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+            @ParameterObject @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
         return ResponseEntity.ok(userService.getAll(pageable));
     }
 

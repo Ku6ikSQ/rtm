@@ -7,6 +7,7 @@ import com.ttkhnvv.rtm.security.constraint.HasRoleTrusted;
 import com.ttkhnvv.rtm.service.AlbumService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -29,8 +30,8 @@ public class AlbumController {
     @HasRoleAny
     @GetMapping
     public ResponseEntity<PageResponse<AlbumResponse>> getAll(
-            @ModelAttribute AlbumFilter filter,
-            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+            @ParameterObject @ModelAttribute AlbumFilter filter,
+            @ParameterObject @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
         return ResponseEntity.ok(albumService.getAll(filter, pageable));
     }
 

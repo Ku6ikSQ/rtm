@@ -10,6 +10,7 @@ import com.ttkhnvv.rtm.security.constraint.HasRoleTrusted;
 import com.ttkhnvv.rtm.service.PlatformService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
@@ -30,8 +31,8 @@ public class PlatformController {
     @HasRoleAny
     @GetMapping
     public ResponseEntity<PageResponse<PlatformResponse>> getAll(
-            @ModelAttribute PlatformFilter filter,
-            @PageableDefault(size = 20, sort = "name") Pageable pageable) {
+            @ParameterObject @ModelAttribute PlatformFilter filter,
+            @ParameterObject @PageableDefault(size = 20, sort = "name") Pageable pageable) {
         return ResponseEntity.ok(platformService.getAll(filter, pageable));
     }
 

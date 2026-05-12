@@ -7,6 +7,7 @@ import com.ttkhnvv.rtm.security.constraint.HasRoleTrusted;
 import com.ttkhnvv.rtm.service.ArtistService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -28,8 +29,8 @@ public class ArtistController {
     @HasRoleAny
     @GetMapping
     public ResponseEntity<PageResponse<ArtistResponse>> getAll(
-            @ModelAttribute ArtistFilter filter,
-            @PageableDefault(size = 20, sort = "stageName", direction = Sort.Direction.ASC) Pageable pageable) {
+            @ParameterObject @ModelAttribute ArtistFilter filter,
+            @ParameterObject @PageableDefault(size = 20, sort = "stageName", direction = Sort.Direction.ASC) Pageable pageable) {
         return ResponseEntity.ok(artistService.getAll(filter, pageable));
     }
 
