@@ -4,8 +4,8 @@ import { useSearchParams } from 'react-router-dom'
 import { SlidersHorizontal } from 'lucide-react'
 import { albumService, genreService } from '@/api'
 import { AlbumGrid } from '@/components/album/AlbumGrid'
+import { AlbumCardSkeleton } from '@/components/album/AlbumCardSkeleton'
 import { AlbumFilters } from '@/components/album/AlbumFilters'
-import { PageSpinner } from '@/components/common/Spinner'
 import { cn } from '@/utils/cn'
 import type { AlbumFilters as Filters } from '@/types/entities'
 
@@ -197,7 +197,9 @@ export function CatalogPage() {
         {/* Main content */}
         <div className="min-w-0 flex-1">
           {isLoading ? (
-            <PageSpinner />
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+              {Array.from({ length: 24 }, (_, i) => <AlbumCardSkeleton key={i} />)}
+            </div>
           ) : (
             <>
               <AlbumGrid albums={data?.content ?? []} />

@@ -6,7 +6,6 @@ import { z } from 'zod'
 import { toast } from 'sonner'
 import { Plus, X } from 'lucide-react'
 import { userService, genreService, platformService, artistService, albumService } from '@/api'
-import { PageSpinner } from '@/components/common/Spinner'
 import { cn } from '@/utils/cn'
 import { formatDateShort } from '@/utils/formatters'
 import { useAuth } from '@/hooks/useAuth'
@@ -88,8 +87,6 @@ function UsersTab() {
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['admin-users'] }); toast.success('Роль изменена') },
   })
 
-  if (isLoading) return <PageSpinner />
-
   const filtered = users.filter((u) => {
     const matchSearch = !search || u.username.includes(search) || u.email.includes(search)
     const matchRole = !roleFilter || u.role === roleFilter
@@ -129,41 +126,51 @@ function UsersTab() {
             </tr>
           </thead>
           <tbody>
-            {filtered.map((u) => (
-              <tr key={u.id} className="border-b border-border last:border-0">
-                <td className="py-2 pr-4">
-                  <p className="font-medium">{u.username}</p>
-                  <p className="text-xs text-muted-foreground">{u.email}</p>
-                </td>
-                <td className="py-2 pr-4">
-                  <select
-                    value={u.role}
-                    onChange={(e) => roleMutation.mutate({ id: u.id, role: e.target.value as UserRole })}
-                    className="h-7 rounded border border-border bg-background px-1.5 text-xs focus:outline-none"
-                  >
-                    <option value="USER">USER</option>
-                    <option value="MODERATOR">MODERATOR</option>
-                    <option value="ADMIN">ADMIN</option>
-                  </select>
-                </td>
-                <td className="hidden py-2 pr-4 text-muted-foreground sm:table-cell">
-                  {formatDateShort(u.createdAt)}
-                </td>
-                <td className="py-2 pr-4">
-                  <span className={cn('text-xs', u.isActive ? 'text-foreground' : 'text-muted-foreground line-through')}>
-                    {u.isActive ? 'Активен' : 'Заблокирован'}
-                  </span>
-                </td>
-                <td className="py-2">
-                  <button
-                    onClick={() => blockMutation.mutate({ id: u.id, active: u.isActive })}
-                    className="text-xs text-muted-foreground hover:text-foreground"
-                  >
-                    {u.isActive ? 'Заблокировать' : 'Разблокировать'}
-                  </button>
+            {isLoading ? (
+              <SkeletonRows cols={5} />
+            ) : filtered.length === 0 ? (
+              <tr>
+                <td colSpan={5} className="py-10 text-center text-sm text-muted-foreground">
+                  {search || roleFilter ? 'Пользователи не найдены' : 'Нет пользователей'}
                 </td>
               </tr>
-            ))}
+            ) : (
+              filtered.map((u) => (
+                <tr key={u.id} className="border-b border-border last:border-0">
+                  <td className="py-2 pr-4">
+                    <p className="font-medium">{u.username}</p>
+                    <p className="text-xs text-muted-foreground">{u.email}</p>
+                  </td>
+                  <td className="py-2 pr-4">
+                    <select
+                      value={u.role}
+                      onChange={(e) => roleMutation.mutate({ id: u.id, role: e.target.value as UserRole })}
+                      className="h-7 rounded border border-border bg-background px-1.5 text-xs focus:outline-none"
+                    >
+                      <option value="USER">USER</option>
+                      <option value="MODERATOR">MODERATOR</option>
+                      <option value="ADMIN">ADMIN</option>
+                    </select>
+                  </td>
+                  <td className="hidden py-2 pr-4 text-muted-foreground sm:table-cell">
+                    {formatDateShort(u.createdAt)}
+                  </td>
+                  <td className="py-2 pr-4">
+                    <span className={cn('text-xs', u.isActive ? 'text-foreground' : 'text-muted-foreground line-through')}>
+                      {u.isActive ? 'Активен' : 'Заблокирован'}
+                    </span>
+                  </td>
+                  <td className="py-2">
+                    <button
+                      onClick={() => blockMutation.mutate({ id: u.id, active: u.isActive })}
+                      className="text-xs text-muted-foreground hover:text-foreground"
+                    >
+                      {u.isActive ? 'Заблокировать' : 'Разблокировать'}
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
@@ -229,8 +236,6 @@ function GenresTab() {
 
   const roots = genres.filter((g) => !g.parentId)
 
-  if (isLoading) return <PageSpinner />
-
   return (
     <div>
       <ConfirmDialog
@@ -261,24 +266,34 @@ function GenresTab() {
             </tr>
           </thead>
           <tbody>
-            {genres.map((g) => (
-              <tr key={g.id} className="border-b border-border last:border-0">
-                <td className="py-2 pr-4">
-                  {g.parentId && <span className="mr-1 text-muted-foreground">↳</span>}
-                  {g.name}
-                </td>
-                <td className="hidden py-2 pr-4 text-muted-foreground sm:table-cell">{g.slug}</td>
-                <td className="hidden py-2 pr-4 text-muted-foreground sm:table-cell">{g.albumCount ?? 0}</td>
-                <td className="py-2">
-                  <button
-                    onClick={() => setPendingDelete(g.id)}
-                    className="text-xs text-muted-foreground hover:text-destructive"
-                  >
-                    Удалить
-                  </button>
+            {isLoading ? (
+              <SkeletonRows cols={4} />
+            ) : genres.length === 0 ? (
+              <tr>
+                <td colSpan={4} className="py-10 text-center text-sm text-muted-foreground">
+                  Жанры ещё не добавлены
                 </td>
               </tr>
-            ))}
+            ) : (
+              genres.map((g) => (
+                <tr key={g.id} className="border-b border-border last:border-0">
+                  <td className="py-2 pr-4">
+                    {g.parentId && <span className="mr-1 text-muted-foreground">↳</span>}
+                    {g.name}
+                  </td>
+                  <td className="hidden py-2 pr-4 text-muted-foreground sm:table-cell">{g.slug}</td>
+                  <td className="hidden py-2 pr-4 text-muted-foreground sm:table-cell">{g.albumCount ?? 0}</td>
+                  <td className="py-2">
+                    <button
+                      onClick={() => setPendingDelete(g.id)}
+                      className="text-xs text-muted-foreground hover:text-destructive"
+                    >
+                      Удалить
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
@@ -343,8 +358,6 @@ function PlatformsTab() {
     onError: (err) => toast.error(err instanceof Error ? err.message : 'Ошибка'),
   })
 
-  if (isLoading) return <PageSpinner />
-
   return (
     <div>
       <ConfirmDialog
@@ -373,16 +386,26 @@ function PlatformsTab() {
             </tr>
           </thead>
           <tbody>
-            {platforms.map((p) => (
-              <tr key={p.id} className="border-b border-border last:border-0">
-                <td className="py-2 pr-4">{p.name}</td>
-                <td className="py-2">
-                  <button onClick={() => setPendingDelete(p.id)} className="text-xs text-muted-foreground hover:text-destructive">
-                    Удалить
-                  </button>
+            {isLoading ? (
+              <SkeletonRows cols={2} />
+            ) : platforms.length === 0 ? (
+              <tr>
+                <td colSpan={2} className="py-10 text-center text-sm text-muted-foreground">
+                  Платформы ещё не добавлены
                 </td>
               </tr>
-            ))}
+            ) : (
+              platforms.map((p) => (
+                <tr key={p.id} className="border-b border-border last:border-0">
+                  <td className="py-2 pr-4">{p.name}</td>
+                  <td className="py-2">
+                    <button onClick={() => setPendingDelete(p.id)} className="text-xs text-muted-foreground hover:text-destructive">
+                      Удалить
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
@@ -446,8 +469,6 @@ function ArtistsTab() {
     onError: (err) => toast.error(err instanceof Error ? err.message : 'Ошибка'),
   })
 
-  if (isLoading) return <PageSpinner />
-
   return (
     <div>
       <ConfirmDialog
@@ -477,20 +498,30 @@ function ArtistsTab() {
             </tr>
           </thead>
           <tbody>
-            {artists.map((a) => (
-              <tr key={a.id} className="border-b border-border last:border-0">
-                <td className="py-2 pr-4">
-                  <p className="font-medium">{a.stageName}</p>
-                  {a.realName && <p className="text-xs text-muted-foreground">{a.realName}</p>}
-                </td>
-                <td className="hidden py-2 pr-4 text-muted-foreground sm:table-cell">{a.country ?? '—'}</td>
-                <td className="py-2">
-                  <button onClick={() => setPendingDelete(a.id)} className="text-xs text-muted-foreground hover:text-destructive">
-                    Удалить
-                  </button>
+            {isLoading ? (
+              <SkeletonRows cols={3} />
+            ) : artists.length === 0 ? (
+              <tr>
+                <td colSpan={3} className="py-10 text-center text-sm text-muted-foreground">
+                  Артисты ещё не добавлены
                 </td>
               </tr>
-            ))}
+            ) : (
+              artists.map((a) => (
+                <tr key={a.id} className="border-b border-border last:border-0">
+                  <td className="py-2 pr-4">
+                    <p className="font-medium">{a.stageName}</p>
+                    {a.realName && <p className="text-xs text-muted-foreground">{a.realName}</p>}
+                  </td>
+                  <td className="hidden py-2 pr-4 text-muted-foreground sm:table-cell">{a.country ?? '—'}</td>
+                  <td className="py-2">
+                    <button onClick={() => setPendingDelete(a.id)} className="text-xs text-muted-foreground hover:text-destructive">
+                      Удалить
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
@@ -547,6 +578,24 @@ function StatsTab() {
         </div>
       ))}
     </div>
+  )
+}
+
+/* ─── Skeleton rows ──────────────────────────────────────────────────── */
+
+function SkeletonRows({ cols, rows = 5 }: { cols: number; rows?: number }) {
+  return (
+    <>
+      {Array.from({ length: rows }, (_, i) => (
+        <tr key={i} className="border-b border-border last:border-0 animate-pulse">
+          {Array.from({ length: cols }, (_, j) => (
+            <td key={j} className="py-3 pr-4">
+              <div className="h-3 rounded bg-muted" style={{ width: j === 0 ? '70%' : '50%' }} />
+            </td>
+          ))}
+        </tr>
+      ))}
+    </>
   )
 }
 
