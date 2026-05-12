@@ -3,6 +3,8 @@ package com.ttkhnvv.rtm.exception.handler;
 import com.ttkhnvv.rtm.exception.track.TrackNotFoundException;
 import com.ttkhnvv.rtm.exception.track.TrackPositionAlreadyTakenException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
@@ -10,6 +12,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
+@Order(Ordered.HIGHEST_PRECEDENCE)
 @Slf4j
 public class TrackExceptionHandler {
     @ExceptionHandler(TrackNotFoundException.class)
