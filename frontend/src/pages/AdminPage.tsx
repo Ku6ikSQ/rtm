@@ -73,7 +73,8 @@ function UsersTab() {
   })
 
   const blockMutation = useMutation({
-    mutationFn: (id: string) => userService.blockUser(id),
+    mutationFn: ({ id, active }: { id: string; active: boolean }) =>
+      active ? userService.blockUser(id) : userService.unblockUser(id),
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['admin-users'] }); toast.success('Статус изменён') },
   })
   const roleMutation = useMutation({
@@ -149,7 +150,7 @@ function UsersTab() {
                 </td>
                 <td className="py-2">
                   <button
-                    onClick={() => blockMutation.mutate(u.id)}
+                    onClick={() => blockMutation.mutate({ id: u.id, active: u.isActive })}
                     className="text-xs text-muted-foreground hover:text-foreground"
                   >
                     {u.isActive ? 'Заблокировать' : 'Разблокировать'}

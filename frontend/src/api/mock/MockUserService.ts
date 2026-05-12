@@ -34,7 +34,15 @@ export class MockUserService implements IUserService {
     await delay(250)
     const idx = mockUsers.findIndex((u) => u.id === id)
     if (idx === -1) throw new ApiError(404, 'Пользователь не найден')
-    mockUsers[idx] = { ...mockUsers[idx], isActive: !mockUsers[idx].isActive }
+    mockUsers[idx] = { ...mockUsers[idx], isActive: false }
+    return mockUsers[idx]
+  }
+
+  async unblockUser(id: string): Promise<User> {
+    await delay(250)
+    const idx = mockUsers.findIndex((u) => u.id === id)
+    if (idx === -1) throw new ApiError(404, 'Пользователь не найден')
+    mockUsers[idx] = { ...mockUsers[idx], isActive: true }
     return mockUsers[idx]
   }
 
