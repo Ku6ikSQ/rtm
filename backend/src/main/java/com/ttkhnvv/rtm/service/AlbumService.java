@@ -53,7 +53,7 @@ public class AlbumService {
      */
     @Transactional(readOnly = true)
     public PageResponse<AlbumResponse> getAll(AlbumFilter filter, Pageable pageable) {
-        var spec = AlbumSpecs.titleContains(filter.getTitle())
+        var spec = AlbumSpecs.titleOrArtistContains(filter.getTitle())
                 .and(AlbumSpecs.releaseYearFrom(filter.getYearFrom()))
                 .and(AlbumSpecs.releaseYearTo(filter.getYearTo()))
                 .and(AlbumSpecs.ratingMin(filter.getRatingMin()))

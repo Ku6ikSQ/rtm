@@ -3,6 +3,7 @@ package com.ttkhnvv.rtm.repository.album;
 import com.ttkhnvv.rtm.entity.album.Album;
 import com.ttkhnvv.rtm.entity.albumartist.AlbumArtist;
 import com.ttkhnvv.rtm.entity.albumgenre.AlbumGenre;
+import com.ttkhnvv.rtm.entity.artist.Artist;
 import lombok.experimental.UtilityClass;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -11,9 +12,28 @@ import java.util.UUID;
 
 @UtilityClass
 public class AlbumSpecs {
-    public Specification<Album> titleContains(String title) {
-        return (root, query, cb) ->
-                title == null ? null : cb.like(cb.lower(root.get("title")), String.format("%%%s%%", title.toLowerCase()));
+    public Specification<Album> titleOrArtistContains(String query) {
+        return (root, q, cb) -> {
+            if (query == null) return null;
+            String pattern = "%" + query.toLowerCase() + "%";
+
+            // SELECT id FROM artists WHERE LOWER(stage_name) LIKE pattern
+            var artistIdSubquery = q.subquery(UUID.class);
+            var artistRoot = artistIdSubquery.from(Artist.class);
+            artistIdSubquery.select(artistRoot.<UUID>get("id"))
+                    .where(cb.like(cb.lower(artistRoot.get("stageName")), pattern));
+
+            // SELECT album_id FROM album_artists WHERE artist_id IN (above)
+            var albumIdSubquery = q.subquery(UUID.class);
+            var aaRoot = albumIdSubquery.from(AlbumArtist.class);
+            albumIdSubquery.select(aaRoot.<UUID>get("albumId"))
+                    .where(aaRoot.get("artistId").in(artistIdSubquery));
+
+            return cb.or(
+                    cb.like(cb.lower(root.get("title")), pattern),
+                    root.get("id").in(albumIdSubquery)
+            );
+        };
     }
 
     public Specification<Album> releaseYearFrom(Integer yearFrom) {
