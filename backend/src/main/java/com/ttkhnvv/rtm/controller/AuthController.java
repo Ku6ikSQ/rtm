@@ -66,7 +66,7 @@ public class AuthController {
      * @throws InvalidTokenException if the provided refresh token is invalid or expired
      * @throws UserNotFoundException if no user was found associated with the token
      */
-    @HasRoleUser
+    @HasRoleAny
     @PostMapping("/refresh")
     public ResponseEntity<RefreshResponse> refresh(@Valid @RequestBody RefreshRequest request) {
         return ResponseEntity.status(200).body(authService.refresh(request));
@@ -78,7 +78,7 @@ public class AuthController {
      * @param request logout data (refresh token)
      * @throws InvalidTokenException if the provided refresh token is invalid or expired
      */
-    @HasRoleUser
+    @HasRoleAny
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(@Valid @RequestBody RefreshRequest request) {
         authService.logout(request);

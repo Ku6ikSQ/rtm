@@ -10,7 +10,7 @@ import java.lang.annotation.Target;
 
 @Target({ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
-@PreAuthorize("hasRole('USER')")
+@PreAuthorize("isAuthenticated()")
 public @interface HasRoleUser {
     String message() default "Granted for user only.";
     Class<?>[] groups() default {};
