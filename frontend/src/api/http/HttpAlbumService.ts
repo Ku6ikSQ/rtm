@@ -248,11 +248,71 @@ export class HttpAlbumService implements IAlbumService {
   }
 
   async update(id: string, dto: UpdateAlbumDto): Promise<Album> {
-    const patches: Promise<unknown>[] = []
-    if (dto.title !== undefined)       patches.push(patch(`/api/v1/albums/${id}/title`, { title: dto.title }))
-    if (dto.description !== undefined) patches.push(patch(`/api/v1/albums/${id}/description`, { description: dto.description }))
-    if (dto.releaseYear !== undefined) patches.push(patch(`/api/v1/albums/${id}/release-year`, { releaseYear: dto.releaseYear }))
-    await Promise.all(patches)
+    const ops: Promise<unknown>[] = []
+
+    if (dto.title !== undefined)
+      ops.push(patch(`/api/v1/albums/${id}/title`, { title: dto.title }))
+    if (dto.description !== undefined)
+      ops.push(patch(`/api/v1/albums/${id}/description`, { description: dto.description }))
+    if (dto.releaseYear !== undefined)
+      ops.push(patch(`/api/v1/albums/${id}/release-year`, { releaseYear: dto.releaseYear }))
+
+    if (dto.artistIds !== undefined) {
+      ops.push((async () => {
+        const current = await get<{ artistId: string }[]>(`/api/v1/album-artists/by-album/${id}`)
+        const currentIds = current.map(a => a.artistId)
+        const toRemove = currentIds.filter(aid => !dto.artistIds!.includes(aid))
+        const toAdd = dto.artistIds!.filter(aid => !currentIds.includes(aid))
+        await Promise.all([
+          ...toRemove.map(artistId => del(`/api/v1/album-artists/${id}/${artistId}`)),
+          ...toAdd.map(artistId => post('/api/v1/album-artists', {
+            albumId: id, artistId, role: 'MAIN',
+            order: dto.artistIds!.indexOf(artistId) + 1,
+          })),
+        ])
+      })())
+    }
+
+    if (dto.genreIds !== undefined) {
+      ops.push((async () => {
+        const current = await get<{ genreId: string }[]>(`/api/v1/album-genres/by-album/${id}`)
+        const currentIds = current.map(g => g.genreId)
+        const toRemove = currentIds.filter(gid => !dto.genreIds!.includes(gid))
+        const toAdd = dto.genreIds!.filter(gid => !currentIds.includes(gid))
+        await Promise.all([
+          ...toRemove.map(genreId => del(`/api/v1/album-genres/${id}/${genreId}`)),
+          ...toAdd.map(genreId => post('/api/v1/album-genres', { albumId: id, genreId })),
+        ])
+      })())
+    }
+
+    if (dto.tracks !== undefined) {
+      ops.push((async () => {
+        const page = await get<BackendPage<BackendTrackResponse>>(`/api/v1/tracks?albumId=${id}&size=200`)
+        await Promise.all(page.content.map(t => del(`/api/v1/tracks/${t.id}`)))
+        for (let i = 0; i < dto.tracks!.length; i++) {
+          const t = dto.tracks![i]
+          await post('/api/v1/tracks', {
+            albumId: id,
+            title: t.title,
+            trackNumber: i + 1,
+            durationSeconds: t.durationSeconds ?? 0,
+          })
+        }
+      })())
+    }
+
+    if (dto.links !== undefined) {
+      ops.push((async () => {
+        const current = await get<BackendAlbumLinkResponse[]>(`/api/v1/album-links/by-album/${id}`)
+        await Promise.all(current.map(l => del(`/api/v1/album-links/${id}/${l.platformId}`)))
+        await Promise.all(dto.links!.map(link =>
+          post('/api/v1/album-links', { albumId: id, platformId: link.platformId, url: link.url })
+        ))
+      })())
+    }
+
+    await Promise.all(ops)
     return this.getById(id)
   }
 
