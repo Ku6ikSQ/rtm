@@ -4,7 +4,7 @@ export interface IUserService {
   getAll(): Promise<User[]>
   getById(id: string): Promise<User>
   updateProfile(dto: UpdateProfileDto): Promise<User>
-  updatePassword(password: string): Promise<void>
+  updatePassword(currentPassword: string, newPassword: string): Promise<void>
   blockUser(id: string): Promise<User>
   unblockUser(id: string): Promise<User>
   changeRole(id: string, role: UserRole): Promise<User>

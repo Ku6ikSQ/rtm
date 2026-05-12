@@ -54,8 +54,7 @@ export class MockUserService implements IUserService {
     return mockUsers[idx]
   }
 
-  async updatePassword(_password: string): Promise<void> {
+  async updatePassword(_currentPassword: string, _newPassword: string): Promise<void> {
     await delay(300)
-    // Mock: accepts any password without verification
   }
 }

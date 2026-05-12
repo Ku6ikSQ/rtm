@@ -83,8 +83,8 @@ export class HttpUserService implements IUserService {
     await patch('/api/v1/users/me/email', { email })
   }
 
-  async updatePassword(password: string): Promise<void> {
-    await patch('/api/v1/users/me/password', { password })
+  async updatePassword(currentPassword: string, newPassword: string): Promise<void> {
+    await patch('/api/v1/users/me/password', { currentPassword, newPassword })
   }
 
   deleteMe(): Promise<void> {

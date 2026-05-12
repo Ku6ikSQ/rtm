@@ -4,6 +4,7 @@ import com.ttkhnvv.rtm.dto.pagination.PageResponse;
 import com.ttkhnvv.rtm.dto.user.UserResponse;
 import com.ttkhnvv.rtm.entity.user.User;
 import com.ttkhnvv.rtm.entity.user.UserRole;
+import com.ttkhnvv.rtm.exception.auth.InvalidPasswordException;
 import com.ttkhnvv.rtm.exception.user.UserNotFoundException;
 import com.ttkhnvv.rtm.mapper.UserMapper;
 import com.ttkhnvv.rtm.repository.token.TokenRepository;
@@ -126,8 +127,26 @@ public class UserService {
     }
 
     /**
-     * Updates the password of a user and invalidates their active refresh token,
-     * forcing re-authentication with the new credentials.
+     * Changes the password of the currently authenticated user after verifying the current password.
+     *
+     * @param id              user identifier
+     * @param currentPassword plain-text current password to verify
+     * @param newPassword     new plain-text password (will be encoded before storage)
+     * @throws UserNotFoundException    if no user was found with the given id
+     * @throws InvalidPasswordException if currentPassword does not match the stored hash
+     */
+    @Transactional
+    public void changeOwnPassword(UUID id, String currentPassword, String newPassword) {
+        var user = findUserById(id);
+        if (!passwordEncoder.matches(currentPassword, user.getPasswordHash()))
+            throw new InvalidPasswordException("Current password is incorrect.");
+        user.setPasswordHash(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+        tokenRepository.delete(id);
+    }
+
+    /**
+     * Updates the password of any user (admin use). Does not verify the current password.
      *
      * @param id       user identifier
      * @param password new plain-text password (will be encoded before storage)

@@ -85,8 +85,8 @@ public class UserController {
 
     @HasRoleUser
     @PatchMapping("/me/password")
-    public ResponseEntity<Void> updateOwnPassword(@Valid @RequestBody UpdatePasswordRequest request) {
-        userService.updatePassword(getCurrentUserId(), request.getPassword());
+    public ResponseEntity<Void> updateOwnPassword(@Valid @RequestBody ChangeOwnPasswordRequest request) {
+        userService.changeOwnPassword(getCurrentUserId(), request.getCurrentPassword(), request.getNewPassword());
         return ResponseEntity.noContent().build();
     }
 

@@ -226,7 +226,7 @@ function ReviewsTab({ userId }: { userId: string }) {
 
 function SecurityTab({ form }: { form: ReturnType<typeof useForm<ChangePasswordDto>> }) {
   const mutation = useMutation({
-    mutationFn: (dto: ChangePasswordDto) => userService.updatePassword(dto.newPassword),
+    mutationFn: (dto: ChangePasswordDto) => userService.updatePassword(dto.currentPassword, dto.newPassword),
     onSuccess: () => {
       toast.success('Пароль изменён')
       form.reset()
