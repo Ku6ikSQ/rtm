@@ -9,10 +9,10 @@ import { PageSpinner } from '@/components/common/Spinner'
 import { cn } from '@/utils/cn'
 import type { AlbumFilters as Filters } from '@/types/entities'
 
-const SORT_OPTIONS: { value: Filters['sort']; label: string }[] = [
-  { value: 'rating', label: 'По рейтингу ↓' },
-  { value: 'year', label: 'По году ↓' },
-  { value: 'createdAt', label: 'По дате добавления' },
+const SORT_OPTIONS: { value: NonNullable<Filters['sort']>; label: string }[] = [
+  { value: 'rating', label: 'Рейтинг' },
+  { value: 'year', label: 'Год' },
+  { value: 'createdAt', label: 'Дата' },
 ]
 
 export function CatalogPage() {
@@ -94,17 +94,31 @@ export function CatalogPage() {
       <div className="mb-4 flex items-center justify-between">
         <h1 className="text-xl font-bold">Каталог</h1>
         <div className="flex items-center gap-2">
-          <select
-            value={filters.sort}
-            onChange={(e) => updateFilters({ sort: e.target.value as Filters['sort'] })}
-            className="h-8 rounded border border-border bg-background px-2 text-sm focus:border-foreground focus:outline-none"
-          >
-            {SORT_OPTIONS.map((o) => (
-              <option key={o.value} value={o.value}>
-                {o.label}
-              </option>
-            ))}
-          </select>
+          <div className="flex items-center gap-1">
+            {SORT_OPTIONS.map((o) => {
+              const isActive = filters.sort === o.value
+              const dir = isActive ? (filters.order ?? 'desc') : 'desc'
+              return (
+                <button
+                  key={o.value}
+                  onClick={() =>
+                    isActive
+                      ? updateFilters({ order: dir === 'desc' ? 'asc' : 'desc' })
+                      : updateFilters({ sort: o.value, order: 'desc' })
+                  }
+                  className={cn(
+                    'flex h-8 items-center gap-0.5 rounded border px-2.5 text-sm transition-colors',
+                    isActive
+                      ? 'border-foreground bg-foreground text-background'
+                      : 'border-border text-muted-foreground hover:text-foreground',
+                  )}
+                >
+                  {o.label}
+                  {isActive && <span className="ml-0.5">{dir === 'desc' ? '↓' : '↑'}</span>}
+                </button>
+              )
+            })}
+          </div>
           <button
             onClick={openMobileFilters}
             className={cn(

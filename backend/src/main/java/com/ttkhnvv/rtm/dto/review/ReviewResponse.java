@@ -22,4 +22,5 @@ public class ReviewResponse {
     private Instant updatedAt;
     private String authorUsername;
     private String authorImageUrl;
+    private String albumTitle;
 }

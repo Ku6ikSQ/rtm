@@ -4,11 +4,13 @@ import com.ttkhnvv.rtm.dto.pagination.PageResponse;
 import com.ttkhnvv.rtm.dto.review.CreateReviewRequest;
 import com.ttkhnvv.rtm.dto.review.ReviewFilter;
 import com.ttkhnvv.rtm.dto.review.ReviewResponse;
+import com.ttkhnvv.rtm.entity.album.Album;
 import com.ttkhnvv.rtm.entity.review.Review;
 import com.ttkhnvv.rtm.entity.user.User;
 import com.ttkhnvv.rtm.exception.review.ReviewAlreadyExistsException;
 import com.ttkhnvv.rtm.exception.review.ReviewNotFoundException;
 import com.ttkhnvv.rtm.mapper.ReviewMapper;
+import com.ttkhnvv.rtm.repository.album.AlbumRepository;
 import com.ttkhnvv.rtm.repository.review.ReviewRepository;
 import com.ttkhnvv.rtm.repository.review.ReviewSpecs;
 import com.ttkhnvv.rtm.repository.user.UserRepository;
@@ -32,6 +34,7 @@ import java.util.stream.Collectors;
 public class ReviewService {
     private final ReviewRepository reviewRepository;
     private final AlbumService albumService;
+    private final AlbumRepository albumRepository;
     private final ReviewMapper reviewMapper;
     private final UserRepository userRepository;
     private final StorageService storageService;
@@ -55,8 +58,13 @@ public class ReviewService {
                 userRepository.findAllById(authorIds).stream()
                         .collect(Collectors.toMap(User::getId, u -> u));
 
+        var albumIds = page.getContent().stream().map(Review::getAlbumId).distinct().toList();
+        var albumTitleMap = albumIds.isEmpty() ? Map.<UUID, String>of() :
+                albumRepository.findAllById(albumIds).stream()
+                        .collect(Collectors.toMap(Album::getId, Album::getTitle));
+
         var content = page.getContent().stream()
-                .map(review -> toResponseWithAuthor(review, authorMap))
+                .map(review -> toResponseWithDetails(review, authorMap, albumTitleMap))
                 .toList();
         return PageResponse.of(page, content);
     }
@@ -74,7 +82,9 @@ public class ReviewService {
         var review = findReviewById(id);
         var author = userRepository.findById(review.getAuthorId()).orElse(null);
         var authorMap = author != null ? Map.of(author.getId(), author) : Map.<UUID, User>of();
-        return toResponseWithAuthor(review, authorMap);
+        var album = albumRepository.findById(review.getAlbumId()).orElse(null);
+        var albumTitleMap = album != null ? Map.of(album.getId(), album.getTitle()) : Map.<UUID, String>of();
+        return toResponseWithDetails(review, authorMap, albumTitleMap);
     }
 
     /**
@@ -181,7 +191,7 @@ public class ReviewService {
         albumService.recalculateRating(albumId);
     }
 
-    private ReviewResponse toResponseWithAuthor(Review review, Map<UUID, User> authorMap) {
+    private ReviewResponse toResponseWithDetails(Review review, Map<UUID, User> authorMap, Map<UUID, String> albumTitleMap) {
         var response = reviewMapper.toResponse(review);
         var author = authorMap.get(review.getAuthorId());
         if (author != null) {
@@ -189,6 +199,7 @@ public class ReviewService {
             if (author.getImageKey() != null)
                 response.setAuthorImageUrl(storageService.getPresignedUrl(author.getImageKey()));
         }
+        response.setAlbumTitle(albumTitleMap.get(review.getAlbumId()));
         return response;
     }
 

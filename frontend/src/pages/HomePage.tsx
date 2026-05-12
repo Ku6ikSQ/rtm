@@ -110,7 +110,7 @@ export function HomePage() {
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-start justify-between gap-2">
-                    <p className="truncate text-sm font-medium">{`Альбом #${review.albumId}`}</p>
+                    <p className="truncate text-sm font-medium">{review.albumTitle ?? `Альбом #${review.albumId}`}</p>
                     <RatingBadge rating={review.score} size="sm" className="flex-shrink-0" />
                   </div>
                   <p className="mt-0.5 text-xs text-muted-foreground">

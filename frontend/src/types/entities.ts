@@ -61,6 +61,7 @@ export interface AlbumArtist {
 export interface Review {
   id: string
   albumId: string
+  albumTitle?: string
   authorId: string
   score: number
   reviewText: string

@@ -17,7 +17,9 @@ import com.ttkhnvv.rtm.repository.artist.ArtistRepository;
 import com.ttkhnvv.rtm.repository.review.ReviewRepository;
 import com.ttkhnvv.rtm.service.storage.StorageService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -60,7 +62,7 @@ public class AlbumService {
                 .and(AlbumSpecs.ratingMax(filter.getRatingMax()))
                 .and(AlbumSpecs.byGenreId(filter.getGenreId()))
                 .and(AlbumSpecs.byArtistId(filter.getArtistId()));
-        var page = albumRepository.findAll(spec, pageable);
+        var page = albumRepository.findAll(spec, withRatingNullHandling(pageable));
 
         var albumIds = page.getContent().stream().map(Album::getId).toList();
         var artistsByAlbum = fetchArtistsByAlbum(albumIds);
@@ -239,6 +241,18 @@ public class AlbumService {
                 artist != null ? artist.getStageName() : null,
                 aa.getRole(),
                 aa.getOrder());
+    }
+
+    // Treat null avgRating as 0: NULLS_FIRST for ASC (0 < any score), NULLS_LAST for DESC (0 < any score).
+    private Pageable withRatingNullHandling(Pageable pageable) {
+        var sort = pageable.getSort();
+        if (!sort.isSorted()) return pageable;
+        var orders = sort.stream().map(o -> {
+            if (!"avgRating".equals(o.getProperty())) return o;
+            var nullHandling = o.isAscending() ? Sort.NullHandling.NULLS_FIRST : Sort.NullHandling.NULLS_LAST;
+            return new Sort.Order(o.getDirection(), o.getProperty(), nullHandling);
+        }).toList();
+        return PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(orders));
     }
 
     private Album findAlbumById(UUID id) {

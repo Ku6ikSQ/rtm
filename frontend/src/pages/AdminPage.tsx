@@ -18,7 +18,13 @@ type Tab = 'users' | 'genres' | 'platforms' | 'artists' | 'stats'
 export function AdminPage() {
   const { hasRole } = useAuth()
   const isAdmin = hasRole(['ADMIN'])
-  const [tab, setTab] = useState<Tab>(isAdmin ? 'users' : 'genres')
+  const [tab, setTab] = useState<Tab>(() => {
+    const saved = localStorage.getItem('admin-tab') as Tab | null
+    const allowed: Tab[] = isAdmin
+      ? ['users', 'genres', 'platforms', 'artists', 'stats']
+      : ['genres', 'platforms', 'artists', 'stats']
+    return saved && allowed.includes(saved) ? saved : isAdmin ? 'users' : 'genres'
+  })
 
   const ALL_TABS: { id: Tab; label: string; adminOnly?: boolean }[] = [
     { id: 'users', label: 'Пользователи', adminOnly: true },
@@ -38,7 +44,7 @@ export function AdminPage() {
         {tabs.map(({ id, label }) => (
           <button
             key={id}
-            onClick={() => setTab(id)}
+            onClick={() => { setTab(id); localStorage.setItem('admin-tab', id) }}
             className={cn(
               'flex-shrink-0 px-4 py-2 text-sm transition-colors',
               tab === id
@@ -519,6 +525,7 @@ function StatsTab() {
   const { data: users = [] } = useQuery({ queryKey: ['admin-users'], queryFn: () => userService.getAll() })
   const { data: artists = [] } = useQuery({ queryKey: ['artists'], queryFn: () => artistService.getAll() })
   const { data: genres = [] } = useQuery({ queryKey: ['genres'], queryFn: () => genreService.getAll() })
+  const { data: platforms = [] } = useQuery({ queryKey: ['platforms'], queryFn: () => platformService.getAll() })
 
   const cards = [
     { label: 'Альбомов', value: albumsPage?.totalElements ?? '…' },
@@ -528,7 +535,7 @@ function StatsTab() {
     { label: 'Активных', value: users.filter((u) => u.isActive).length || 0 },
     { label: 'Модераторов', value: users.filter((u) => u.role === 'MODERATOR').length || 0 },
     { label: 'Заблокировано', value: users.filter((u) => !u.isActive).length || 0 },
-    { label: 'Платформ', value: '…' },
+    { label: 'Платформ', value: platforms.length },
   ]
 
   return (

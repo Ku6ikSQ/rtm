@@ -5,6 +5,7 @@ import { del, get, patch, post } from './apiClient'
 interface BackendReviewResponse {
   id: string
   albumId: string
+  albumTitle: string | null
   authorId: string
   score: number
   reviewText: string
@@ -26,6 +27,7 @@ function mapReview(raw: BackendReviewResponse): Review {
   return {
     id: raw.id,
     albumId: raw.albumId,
+    albumTitle: raw.albumTitle ?? undefined,
     authorId: raw.authorId,
     score: raw.score,
     reviewText: raw.reviewText,
