@@ -46,10 +46,9 @@ export class HttpPlatformService implements IPlatformService {
 
   async create(dto: CreatePlatformDto): Promise<Platform> {
     const raw = await post<BackendPlatformResponse>('/api/v1/platforms', { name: dto.name })
-    // Upload logo separately if provided
-    if (dto.logoUrl) {
-      // logoUrl here is used as a URL string from forms, not a File.
-      // Actual file upload goes through uploadLogo (not in interface).
+    if (dto.logoFile) {
+      await this.uploadLogo(raw.id, dto.logoFile)
+      return this.getById(raw.id)
     }
     return mapPlatform(raw)
   }

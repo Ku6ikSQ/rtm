@@ -19,7 +19,7 @@ export class MockPlatformService implements IPlatformService {
 
   async create(dto: CreatePlatformDto): Promise<Platform> {
     await delay(300)
-    const p: Platform = { id: String(Date.now()), ...dto }
+    const p: Platform = { id: String(Date.now()), name: dto.name }
     mockPlatforms.push(p)
     return p
   }
@@ -28,7 +28,7 @@ export class MockPlatformService implements IPlatformService {
     await delay(250)
     const idx = mockPlatforms.findIndex((p) => p.id === id)
     if (idx === -1) throw new ApiError(404, 'Платформа не найдена')
-    mockPlatforms[idx] = { ...mockPlatforms[idx], ...dto }
+    if (dto.name !== undefined) mockPlatforms[idx] = { ...mockPlatforms[idx], name: dto.name }
     return mockPlatforms[idx]
   }
 

@@ -25,10 +25,11 @@ async function parseError(res: Response): Promise<ApiError> {
 }
 
 async function doFetch(input: RequestInfo, init?: RequestInit): Promise<Response> {
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
-    ...(init?.headers as Record<string, string>),
+  const headers: Record<string, string> = {}
+  if (!(init?.body instanceof FormData)) {
+    headers['Content-Type'] = 'application/json'
   }
+  Object.assign(headers, init?.headers as Record<string, string>)
   if (accessToken) {
     headers['Authorization'] = `Bearer ${accessToken}`
   }

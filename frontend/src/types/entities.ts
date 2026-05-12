@@ -161,7 +161,7 @@ export interface CreateGenreDto {
 
 export interface CreatePlatformDto {
   name: string
-  logoUrl?: string
+  logoFile?: File
 }
 
 // Auth responses

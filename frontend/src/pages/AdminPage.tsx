@@ -304,13 +304,14 @@ function GenresTab() {
 
 const platformSchema = z.object({
   name: z.string().min(1, 'Обязательное поле'),
-  logoUrl: z.string().url('Некорректный URL').optional().or(z.literal('')),
 })
+type PlatformFormValues = z.infer<typeof platformSchema>
 
 function PlatformsTab() {
   const queryClient = useQueryClient()
   const [showCreate, setShowCreate] = useState(false)
   const [pendingDelete, setPendingDelete] = useState<string | null>(null)
+  const [logoFile, setLogoFile] = useState<File | null>(null)
 
   const { data: platforms = [], isLoading } = useQuery({
     queryKey: ['platforms'],
@@ -322,7 +323,7 @@ function PlatformsTab() {
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['platforms'] }); toast.success('Платформа удалена') },
   })
 
-  const form = useForm<CreatePlatformDto>({ resolver: zodResolver(platformSchema) })
+  const form = useForm<PlatformFormValues>({ resolver: zodResolver(platformSchema) })
 
   const createMutation = useMutation({
     mutationFn: (dto: CreatePlatformDto) => platformService.create(dto),
@@ -330,6 +331,7 @@ function PlatformsTab() {
       queryClient.invalidateQueries({ queryKey: ['platforms'] })
       toast.success('Платформа добавлена')
       form.reset()
+      setLogoFile(null)
       setShowCreate(false)
     },
     onError: (err) => toast.error(err instanceof Error ? err.message : 'Ошибка'),
@@ -381,12 +383,17 @@ function PlatformsTab() {
 
       {showCreate && (
         <Modal title="Новая платформа" onClose={() => setShowCreate(false)}>
-          <form onSubmit={form.handleSubmit((d) => createMutation.mutate({ ...d, logoUrl: d.logoUrl || undefined }))} className="space-y-3">
+          <form onSubmit={form.handleSubmit((d) => createMutation.mutate({ name: d.name, logoFile: logoFile ?? undefined }))} className="space-y-3">
             <FormField label="Название" error={form.formState.errors.name?.message}>
               <input {...form.register('name')} className={fieldCls} />
             </FormField>
-            <FormField label="URL логотипа" error={form.formState.errors.logoUrl?.message}>
-              <input {...form.register('logoUrl')} className={fieldCls} placeholder="https://…" />
+            <FormField label="Логотип">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => setLogoFile(e.target.files?.[0] ?? null)}
+                className="w-full text-sm text-muted-foreground file:mr-3 file:rounded file:border file:border-border file:bg-transparent file:px-3 file:py-1.5 file:text-sm file:text-foreground hover:file:bg-muted"
+              />
             </FormField>
             <ModalActions onCancel={() => setShowCreate(false)} loading={createMutation.isPending} />
           </form>
