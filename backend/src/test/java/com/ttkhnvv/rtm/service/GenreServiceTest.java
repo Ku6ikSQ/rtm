@@ -7,6 +7,7 @@ import com.ttkhnvv.rtm.entity.genre.Genre;
 import com.ttkhnvv.rtm.exception.genre.GenreNotFoundException;
 import com.ttkhnvv.rtm.exception.genre.GenreSlugAlreadyTakenException;
 import com.ttkhnvv.rtm.mapper.GenreMapper;
+import com.ttkhnvv.rtm.repository.albumgenre.AlbumGenreRepository;
 import com.ttkhnvv.rtm.repository.genre.GenreRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -36,6 +37,8 @@ class GenreServiceTest {
 
     @Mock
     private GenreRepository genreRepository;
+    @Mock
+    private AlbumGenreRepository albumGenreRepository;
     @Mock
     private GenreMapper genreMapper;
 
@@ -73,6 +76,7 @@ class GenreServiceTest {
             var pageable = Pageable.unpaged();
             when(genreRepository.findAll((Specification<Genre>) any(), any(Pageable.class))).thenReturn(new PageImpl<>(List.of(genre)));
             when(genreMapper.toResponse(genre)).thenReturn(genreResponse);
+            when(albumGenreRepository.countGroupedByGenreIdIn(any())).thenReturn(List.of());
 
             // when
             var result = genreService.getAll(filter, pageable);
@@ -103,12 +107,13 @@ class GenreServiceTest {
             // given
             when(genreRepository.findById(genreId)).thenReturn(Optional.of(genre));
             when(genreMapper.toResponse(genre)).thenReturn(genreResponse);
+            when(albumGenreRepository.countByGenreId(genreId)).thenReturn(5L);
 
             // when
             var result = genreService.getById(genreId);
 
             // then
-            assertThat(result).isEqualTo(genreResponse);
+            assertThat(result.getAlbumCount()).isEqualTo(5L);
         }
 
         @Test

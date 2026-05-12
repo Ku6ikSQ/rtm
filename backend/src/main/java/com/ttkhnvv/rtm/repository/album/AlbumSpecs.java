@@ -1,6 +1,7 @@
 package com.ttkhnvv.rtm.repository.album;
 
 import com.ttkhnvv.rtm.entity.album.Album;
+import com.ttkhnvv.rtm.entity.albumartist.AlbumArtist;
 import com.ttkhnvv.rtm.entity.albumgenre.AlbumGenre;
 import lombok.experimental.UtilityClass;
 import org.springframework.data.jpa.domain.Specification;
@@ -26,6 +27,17 @@ public class AlbumSpecs {
             var agRoot = subquery.from(AlbumGenre.class);
             subquery.select(agRoot.get("albumId"))
                     .where(cb.equal(agRoot.get("genreId"), genreId));
+            return root.get("id").in(subquery);
+        };
+    }
+
+    public Specification<Album> byArtistId(UUID artistId) {
+        return (root, query, cb) -> {
+            if (artistId == null) return null;
+            var subquery = query.subquery(UUID.class);
+            var aaRoot = subquery.from(AlbumArtist.class);
+            subquery.select(aaRoot.get("albumId"))
+                    .where(cb.equal(aaRoot.get("artistId"), artistId));
             return root.get("id").in(subquery);
         };
     }

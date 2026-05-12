@@ -17,4 +17,5 @@ public class GenreResponse {
     private String slug;
     private String description;
     private UUID parentId;
+    private long albumCount;
 }

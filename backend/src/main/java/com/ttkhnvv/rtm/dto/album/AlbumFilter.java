@@ -15,4 +15,5 @@ public class AlbumFilter {
     private String title;
     private Integer releaseYear;
     private UUID genreId;
+    private UUID artistId;
 }

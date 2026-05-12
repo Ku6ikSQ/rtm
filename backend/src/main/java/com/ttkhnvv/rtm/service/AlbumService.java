@@ -55,7 +55,8 @@ public class AlbumService {
     public PageResponse<AlbumResponse> getAll(AlbumFilter filter, Pageable pageable) {
         var spec = AlbumSpecs.titleContains(filter.getTitle())
                 .and(AlbumSpecs.releaseYearEquals(filter.getReleaseYear()))
-                .and(AlbumSpecs.byGenreId(filter.getGenreId()));
+                .and(AlbumSpecs.byGenreId(filter.getGenreId()))
+                .and(AlbumSpecs.byArtistId(filter.getArtistId()));
         var page = albumRepository.findAll(spec, pageable);
 
         var albumIds = page.getContent().stream().map(Album::getId).toList();
