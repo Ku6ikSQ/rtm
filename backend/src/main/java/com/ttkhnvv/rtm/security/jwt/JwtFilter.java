@@ -1,5 +1,6 @@
 package com.ttkhnvv.rtm.security.jwt;
 
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -36,7 +38,13 @@ public class JwtFilter extends OncePerRequestFilter {
         }
 
         var token = authHeader.substring(BEARER.length());
-        var userId = jwtService.extractUserId(token);
+        UUID userId;
+        try {
+            userId = jwtService.extractUserId(token);
+        } catch (JwtException e) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = userDetailsService.loadUserByUsername(userId.toString());
