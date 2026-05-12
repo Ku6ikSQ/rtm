@@ -6,6 +6,7 @@ import com.ttkhnvv.rtm.entity.albumgenre.AlbumGenre;
 import lombok.experimental.UtilityClass;
 import org.springframework.data.jpa.domain.Specification;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @UtilityClass
@@ -15,9 +16,27 @@ public class AlbumSpecs {
                 title == null ? null : cb.like(cb.lower(root.get("title")), String.format("%%%s%%", title.toLowerCase()));
     }
 
-    public Specification<Album> releaseYearEquals(Integer year) {
+    public Specification<Album> releaseYearFrom(Integer yearFrom) {
         return (root, query, cb) ->
-                year == null ? null : cb.equal(root.get("releaseYear"), year);
+                yearFrom == null ? null : cb.greaterThanOrEqualTo(root.<Integer>get("releaseYear"), yearFrom);
+    }
+
+    public Specification<Album> releaseYearTo(Integer yearTo) {
+        return (root, query, cb) ->
+                yearTo == null ? null : cb.lessThanOrEqualTo(root.<Integer>get("releaseYear"), yearTo);
+    }
+
+    public Specification<Album> ratingMin(BigDecimal min) {
+        return (root, query, cb) ->
+                min == null ? null : cb.greaterThanOrEqualTo(root.<BigDecimal>get("avgRating"), min);
+    }
+
+    public Specification<Album> ratingMax(BigDecimal max) {
+        return (root, query, cb) ->
+                max == null ? null : cb.or(
+                        root.<BigDecimal>get("avgRating").isNull(),
+                        cb.lessThanOrEqualTo(root.<BigDecimal>get("avgRating"), max)
+                );
     }
 
     public Specification<Album> byGenreId(UUID genreId) {

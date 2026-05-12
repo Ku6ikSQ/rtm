@@ -54,7 +54,10 @@ public class AlbumService {
     @Transactional(readOnly = true)
     public PageResponse<AlbumResponse> getAll(AlbumFilter filter, Pageable pageable) {
         var spec = AlbumSpecs.titleContains(filter.getTitle())
-                .and(AlbumSpecs.releaseYearEquals(filter.getReleaseYear()))
+                .and(AlbumSpecs.releaseYearFrom(filter.getYearFrom()))
+                .and(AlbumSpecs.releaseYearTo(filter.getYearTo()))
+                .and(AlbumSpecs.ratingMin(filter.getRatingMin()))
+                .and(AlbumSpecs.ratingMax(filter.getRatingMax()))
                 .and(AlbumSpecs.byGenreId(filter.getGenreId()))
                 .and(AlbumSpecs.byArtistId(filter.getArtistId()));
         var page = albumRepository.findAll(spec, pageable);

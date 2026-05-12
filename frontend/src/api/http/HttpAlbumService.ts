@@ -112,16 +112,22 @@ function mapEmbeddedArtists(summaries: BackendArtistSummary[]): AlbumArtist[] {
 function buildQuery(filters?: AlbumFilters): string {
   if (!filters) return ''
   const p = new URLSearchParams()
-  if (filters.q)              p.set('title', filters.q)
-  if (filters.genreId)        p.set('genreId', filters.genreId)
-  if (filters.artistId)       p.set('artistId', filters.artistId)
-  if (filters.yearFrom != null) p.set('releaseYear', String(filters.yearFrom))
-  if (filters.page != null)  p.set('page', String(filters.page))
-  if (filters.size != null)  p.set('size', String(filters.size))
-  if (filters.sort === 'year')       p.set('sort', 'releaseYear')
-  else if (filters.sort === 'rating') p.set('sort', 'avgRating')
-  else if (filters.sort)              p.set('sort', filters.sort)
-  if (filters.order) p.set('order', filters.order)
+  if (filters.q)                  p.set('title', filters.q)
+  if (filters.genreId)            p.set('genreId', filters.genreId)
+  if (filters.artistId)           p.set('artistId', filters.artistId)
+  if (filters.yearFrom != null)   p.set('yearFrom', String(filters.yearFrom))
+  if (filters.yearTo != null)     p.set('yearTo', String(filters.yearTo))
+  if (filters.ratingMin != null)  p.set('ratingMin', String(filters.ratingMin))
+  if (filters.ratingMax != null)  p.set('ratingMax', String(filters.ratingMax))
+  if (filters.page != null)       p.set('page', String(filters.page))
+  if (filters.size != null)       p.set('size', String(filters.size))
+
+  let sortField: string | undefined
+  if (filters.sort === 'year')        sortField = 'releaseYear'
+  else if (filters.sort === 'rating') sortField = 'avgRating'
+  else if (filters.sort)              sortField = filters.sort
+  if (sortField) p.set('sort', `${sortField},${filters.order ?? 'desc'}`)
+
   const qs = p.toString()
   return qs ? `?${qs}` : ''
 }
