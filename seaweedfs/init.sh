@@ -1,16 +1,9 @@
 #!/bin/sh
 set -e
 
-echo "Waiting for SeaweedFS filer..."
-until curl -s --connect-timeout 2 -o /dev/null "http://seaweedfs:8888/" 2>&1; do
-  sleep 3
-done
-echo "Filer is ready, waiting for S3..."
-until curl -s --connect-timeout 2 -o /dev/null "http://seaweedfs:8333/" 2>&1; do
-  sleep 2
-done
-echo "S3 is ready"
+apk add --no-cache curl aws-cli >/dev/null 2>&1
 
+echo "Writing IAM config to filer..."
 cat > /tmp/iam.json << EOF
 {
   "signingKey": "seaweedfs-sts-key",
@@ -30,12 +23,11 @@ cat > /tmp/iam.json << EOF
 EOF
 
 curl -sf -X POST -F "file=@/tmp/iam.json" "http://seaweedfs:8888/etc/iam/config.json"
-echo "IAM config written to filer"
-
+echo "IAM config written, waiting for S3 to reload..."
 sleep 5
 
-aws s3api create-bucket \
-  --bucket "$STORAGE_BUCKET" \
-  --endpoint-url "http://seaweedfs:8333" || true
+echo "Creating bucket..."
+aws --endpoint-url "http://seaweedfs:8333" s3api create-bucket \
+  --bucket "$STORAGE_BUCKET" 2>&1 || true
 
 echo "SeaweedFS init complete"

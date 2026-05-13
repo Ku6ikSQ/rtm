@@ -76,11 +76,17 @@ services:
       - "8333:8333"
     volumes:
       - seaweedfs_data:/data
+    healthcheck:
+      test: ["CMD", "wget", "-qO", "/dev/null", "http://localhost:8333/"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
     restart: unless-stopped
 
   # Записывает IAM-конфиг в filer и создаёт S3-бакет
   seaweedfs-init:
-    image: amazon/aws-cli:latest
+    image: alpine:latest
     entrypoint: ["/bin/sh", "/init.sh"]
     environment:
       AWS_ACCESS_KEY_ID: ${STORAGE_ACCESS_KEY}
@@ -90,7 +96,8 @@ services:
     volumes:
       - ./seaweedfs/init.sh:/init.sh:ro
     depends_on:
-      - seaweedfs
+      seaweedfs:
+        condition: service_healthy
     restart: "no"
 
 volumes:
