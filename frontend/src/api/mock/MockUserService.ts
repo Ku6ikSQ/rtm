@@ -57,4 +57,9 @@ export class MockUserService implements IUserService {
   async updatePassword(_currentPassword: string, _newPassword: string): Promise<void> {
     await delay(300)
   }
+
+  async uploadAvatar(_file: File): Promise<string> {
+    await delay(300)
+    return ''
+  }
 }
