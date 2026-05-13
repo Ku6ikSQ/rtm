@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cd /c/data/Desktop/rtm/frontend/src && find . -type f -name \"*.tsx\" | grep -i \"page\\\\|form\" | head -50)",
+      "Read(//c/c/data/Desktop/rtm/frontend/**)"
+    ]
+  }
+}
