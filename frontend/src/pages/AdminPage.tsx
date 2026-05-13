@@ -10,7 +10,8 @@ import { cn } from '@/utils/cn'
 import { formatDateShort } from '@/utils/formatters'
 import { useAuth } from '@/hooks/useAuth'
 import { ConfirmDialog } from '@/components/common/ConfirmDialog'
-import type { UserRole, CreateGenreDto, CreatePlatformDto, CreateArtistDto } from '@/types/entities'
+import { ArtistEditModal } from '@/components/artist/ArtistEditModal'
+import type { UserRole, CreateGenreDto, CreatePlatformDto, CreateArtistDto, Artist } from '@/types/entities'
 
 type Tab = 'users' | 'genres' | 'platforms' | 'artists' | 'stats'
 
@@ -445,6 +446,7 @@ function ArtistsTab() {
   const queryClient = useQueryClient()
   const [showCreate, setShowCreate] = useState(false)
   const [pendingDelete, setPendingDelete] = useState<string | null>(null)
+  const [editingArtist, setEditingArtist] = useState<Artist | null>(null)
   const [photoFile, setPhotoFile] = useState<File | null>(null)
   const [photoPreview, setPhotoPreview] = useState<string | null>(null)
 
@@ -479,6 +481,9 @@ function ArtistsTab() {
 
   return (
     <div>
+      {editingArtist && (
+        <ArtistEditModal artist={editingArtist} onClose={() => setEditingArtist(null)} />
+      )}
       <ConfirmDialog
         open={!!pendingDelete}
         title="Удалить артиста?"
@@ -523,9 +528,14 @@ function ArtistsTab() {
                   </td>
                   <td className="hidden py-2 pr-4 text-muted-foreground sm:table-cell">{a.country ?? '—'}</td>
                   <td className="py-2">
-                    <button onClick={() => setPendingDelete(a.id)} className="text-xs text-muted-foreground hover:text-destructive">
-                      Удалить
-                    </button>
+                    <div className="flex items-center gap-3">
+                      <button onClick={() => setEditingArtist(a)} className="text-xs text-muted-foreground hover:text-foreground">
+                        Изменить
+                      </button>
+                      <button onClick={() => setPendingDelete(a.id)} className="text-xs text-muted-foreground hover:text-destructive">
+                        Удалить
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))

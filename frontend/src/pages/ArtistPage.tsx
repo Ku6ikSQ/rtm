@@ -1,11 +1,18 @@
+import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useParams } from 'react-router-dom'
+import { Pencil } from 'lucide-react'
 import { artistService, albumService } from '@/api'
+import { useAuth } from '@/hooks/useAuth'
 import { PageSpinner } from '@/components/common/Spinner'
 import { AlbumGrid } from '@/components/album/AlbumGrid'
+import { ArtistEditModal } from '@/components/artist/ArtistEditModal'
 
 export function ArtistPage() {
   const { id } = useParams<{ id: string }>()
+  const { hasRole } = useAuth()
+  const canEdit = hasRole(['ADMIN', 'MODERATOR'])
+  const [showEdit, setShowEdit] = useState(false)
 
   const { data: artist, isLoading: loadingArtist } = useQuery({
     queryKey: ['artist', id],
@@ -30,13 +37,30 @@ export function ArtistPage() {
 
   return (
     <div>
+      {showEdit && <ArtistEditModal artist={artist} onClose={() => setShowEdit(false)} />}
+
       {/* Artist header */}
       <div className="mb-8 flex flex-col items-center gap-4 sm:flex-row sm:items-start">
-        <div className="flex h-40 w-40 flex-shrink-0 items-center justify-center rounded-full border border-border bg-muted text-4xl font-bold text-muted-foreground">
-          {artist.stageName[0]}
+        <div className="flex h-40 w-40 flex-shrink-0 items-center justify-center overflow-hidden rounded-full border border-border bg-muted text-4xl font-bold text-muted-foreground">
+          {artist.imageUrl ? (
+            <img src={artist.imageUrl} alt={artist.stageName} className="h-full w-full object-cover" />
+          ) : (
+            artist.stageName[0]
+          )}
         </div>
         <div className="text-center sm:text-left">
-          <h1 className="text-2xl font-bold">{artist.stageName}</h1>
+          <div className="flex items-center justify-center gap-2 sm:justify-start">
+            <h1 className="text-2xl font-bold">{artist.stageName}</h1>
+            {canEdit && (
+              <button
+                onClick={() => setShowEdit(true)}
+                title="Редактировать"
+                className="flex h-7 w-7 items-center justify-center rounded border border-border text-muted-foreground hover:text-foreground"
+              >
+                <Pencil className="h-3.5 w-3.5" />
+              </button>
+            )}
+          </div>
           {artist.realName && (
             <p className="mt-0.5 text-sm text-muted-foreground">{artist.realName}</p>
           )}
