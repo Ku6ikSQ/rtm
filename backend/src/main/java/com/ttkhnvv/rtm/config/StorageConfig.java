@@ -31,8 +31,11 @@ public class StorageConfig {
 
     @Bean
     public S3Presigner s3Presigner() {
+        String presignUrl = properties.getPublicUrl() != null && !properties.getPublicUrl().isBlank()
+                ? properties.getPublicUrl()
+                : properties.getEndpoint();
         return S3Presigner.builder()
-                .endpointOverride(URI.create(properties.getEndpoint()))
+                .endpointOverride(URI.create(presignUrl))
                 .credentialsProvider(getAwsCredentialsProvider())
                 .region(Region.US_EAST_1)
                 .serviceConfiguration(S3Configuration.builder()

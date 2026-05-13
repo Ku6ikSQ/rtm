@@ -13,7 +13,11 @@
       "Bash(pkill -f \"vite --port 5173\")",
       "Bash(npm run *)",
       "Bash(sed -n '38,50p' /home/tikho/projects/rtm/frontend/src/types/entities.ts)",
-      "Bash(sed -n '95,115p' /home/tikho/projects/rtm/frontend/src/types/entities.ts)"
+      "Bash(sed -n '95,115p' /home/tikho/projects/rtm/frontend/src/types/entities.ts)",
+      "Bash(docker --version)",
+      "Bash(docker build *)",
+      "Bash(docker context *)",
+      "Bash(docker info *)"
     ],
     "additionalDirectories": [
       "/home/tikho/projects/rtm/frontend/node_modules"
