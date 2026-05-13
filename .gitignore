@@ -57,3 +57,5 @@ desktop.ini
 # ========================
 out
 docs
+
+.env
