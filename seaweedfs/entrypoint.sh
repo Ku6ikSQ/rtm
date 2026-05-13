@@ -3,7 +3,6 @@ set -e
 
 cat > /tmp/s3.conf << EOF
 {
-  "signingKey": "seaweedfs-sts-key",
   "identities": [
     {
       "name": "admin",
@@ -19,4 +18,4 @@ cat > /tmp/s3.conf << EOF
 }
 EOF
 
-exec weed server -dir=/data -s3 -s3.port=8333 -s3.config=/tmp/s3.conf -filer -filer.port=8888
+exec weed server -dir=/data -s3 -s3.port=8333 -s3.config=/tmp/s3.conf

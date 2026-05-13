@@ -71,11 +71,15 @@ services:
 
   seaweedfs:
     image: chrislusf/seaweedfs:latest
-    command: server -dir=/data -s3 -s3.port=8333 -filer -filer.port=8888
+    entrypoint: ["/bin/sh", "/entrypoint.sh"]
     ports:
       - "8333:8333"
     volumes:
       - seaweedfs_data:/data
+      - ./seaweedfs/entrypoint.sh:/entrypoint.sh:ro
+    environment:
+      STORAGE_ACCESS_KEY: ${STORAGE_ACCESS_KEY}
+      STORAGE_SECRET_KEY: ${STORAGE_SECRET_KEY}
     restart: unless-stopped
 
   # Записывает IAM-конфиг в filer и создаёт S3-бакет
