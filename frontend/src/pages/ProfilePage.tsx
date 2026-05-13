@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -106,12 +106,43 @@ function ProfileTab({
   form: ReturnType<typeof useForm<UpdateProfileDto>>
   mutation: ReturnType<typeof useMutation<unknown, unknown, UpdateProfileDto>>
 }) {
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const queryClient = useQueryClient()
+
+  const uploadAvatar = useMutation({
+    mutationFn: (file: File) => userService.uploadAvatar(file),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['me'] })
+      toast.success('Аватар обновлён')
+    },
+    onError: () => toast.error('Не удалось загрузить аватар'),
+  })
+
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <div className="flex h-20 w-20 flex-shrink-0 items-center justify-center rounded-full border border-border bg-muted text-2xl font-bold">
-          {user.username[0]?.toUpperCase()}
-        </div>
+        <button
+          type="button"
+          onClick={() => fileInputRef.current?.click()}
+          title="Загрузить аватар"
+          className="relative flex h-20 w-20 flex-shrink-0 items-center justify-center overflow-hidden rounded-full border border-border bg-muted text-2xl font-bold transition-opacity hover:opacity-75"
+        >
+          {(user as { avatarUrl?: string }).avatarUrl ? (
+            <img src={(user as { avatarUrl?: string }).avatarUrl} alt={user.username} className="h-full w-full object-cover" />
+          ) : (
+            user.username[0]?.toUpperCase()
+          )}
+        </button>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={(e) => {
+            const f = e.target.files?.[0]
+            if (f) uploadAvatar.mutate(f)
+          }}
+        />
         <div>
           <p className="font-medium">{user.username}</p>
           <p className="text-sm text-muted-foreground">{user.email}</p>

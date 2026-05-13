@@ -445,6 +445,8 @@ function ArtistsTab() {
   const queryClient = useQueryClient()
   const [showCreate, setShowCreate] = useState(false)
   const [pendingDelete, setPendingDelete] = useState<string | null>(null)
+  const [photoFile, setPhotoFile] = useState<File | null>(null)
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null)
 
   const { data: artists = [], isLoading } = useQuery({
     queryKey: ['artists'],
@@ -459,11 +461,17 @@ function ArtistsTab() {
   const form = useForm<CreateArtistDto>({ resolver: zodResolver(artistSchema) })
 
   const createMutation = useMutation({
-    mutationFn: (dto: CreateArtistDto) => artistService.create(dto),
+    mutationFn: async (dto: CreateArtistDto) => {
+      const artist = await artistService.create(dto)
+      if (photoFile) await artistService.uploadPhoto(artist.id, photoFile)
+      return artist
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['artists'] })
       toast.success('Артист добавлен')
       form.reset()
+      setPhotoFile(null)
+      setPhotoPreview(null)
       setShowCreate(false)
     },
     onError: (err) => toast.error(err instanceof Error ? err.message : 'Ошибка'),
@@ -527,7 +535,7 @@ function ArtistsTab() {
       </div>
 
       {showCreate && (
-        <Modal title="Новый артист" onClose={() => setShowCreate(false)}>
+        <Modal title="Новый артист" onClose={() => { setShowCreate(false); setPhotoFile(null); setPhotoPreview(null) }}>
           <form onSubmit={form.handleSubmit((d) => createMutation.mutate(d))} className="space-y-3">
             <FormField label="Псевдоним *" error={form.formState.errors.stageName?.message}>
               <input {...form.register('stageName')} className={fieldCls} />
@@ -541,7 +549,28 @@ function ArtistsTab() {
             <FormField label="Биография">
               <textarea {...form.register('bio')} rows={3} className={fieldCls} />
             </FormField>
-            <ModalActions onCancel={() => setShowCreate(false)} loading={createMutation.isPending} />
+            <FormField label="Фото">
+              <div className="flex items-center gap-3">
+                <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded border border-border bg-muted">
+                  {photoPreview ? (
+                    <img src={photoPreview} alt="Фото" className="h-full w-full object-cover" />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">Нет</div>
+                  )}
+                </div>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const f = e.target.files?.[0] ?? null
+                    setPhotoFile(f)
+                    setPhotoPreview(f ? URL.createObjectURL(f) : null)
+                  }}
+                  className="text-sm text-muted-foreground file:mr-3 file:rounded file:border file:border-border file:bg-transparent file:px-3 file:py-1.5 file:text-sm file:text-foreground hover:file:bg-muted"
+                />
+              </div>
+            </FormField>
+            <ModalActions onCancel={() => { setShowCreate(false); setPhotoFile(null); setPhotoPreview(null) }} loading={createMutation.isPending} />
           </form>
         </Modal>
       )}

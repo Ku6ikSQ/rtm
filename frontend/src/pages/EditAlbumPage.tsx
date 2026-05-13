@@ -124,6 +124,8 @@ export function EditAlbumPage() {
   const [tracks, setTracks] = useState<TrackRow[]>([])
   const [links, setLinks] = useState<LinkRow[]>([])
   const [tracksInitialized, setTracksInitialized] = useState(false)
+  const [coverFile, setCoverFile] = useState<File | null>(null)
+  const [coverPreview, setCoverPreview] = useState<string | null>(null)
 
   const { data: album, isLoading: loadingAlbum } = useQuery({
     queryKey: ['album', id],
@@ -185,7 +187,7 @@ export function EditAlbumPage() {
   }, [album, reset, tracksInitialized])
 
   const mutation = useMutation({
-    mutationFn: (data: FormValues) => {
+    mutationFn: async (data: FormValues) => {
       const trackInputs: CreateTrackInput[] = tracks
         .filter((t) => t.title.trim())
         .map((t) => ({
@@ -202,7 +204,8 @@ export function EditAlbumPage() {
         tracks: trackInputs,
         links: links.filter((l) => l.platformId && l.url.trim()).map((l) => ({ platformId: l.platformId, url: l.url.trim() })),
       }
-      return albumService.update(id!, dto)
+      await albumService.update(id!, dto)
+      if (coverFile) await albumService.uploadCover(id!, coverFile)
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['album', id] })
@@ -257,6 +260,30 @@ export function EditAlbumPage() {
       <h1 className="mb-6 text-xl font-bold">Редактировать «{album.title}»</h1>
 
       <form onSubmit={handleSubmit((d) => mutation.mutate(d))} className="space-y-5">
+        {/* Cover */}
+        <div>
+          <label className="mb-2 block text-sm font-medium">Обложка</label>
+          <div className="flex items-center gap-3">
+            <div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded border border-border bg-muted">
+              {(coverPreview ?? album.coverUrl) ? (
+                <img src={coverPreview ?? album.coverUrl} alt="Обложка" className="h-full w-full object-cover" />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">Нет</div>
+              )}
+            </div>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => {
+                const f = e.target.files?.[0] ?? null
+                setCoverFile(f)
+                setCoverPreview(f ? URL.createObjectURL(f) : null)
+              }}
+              className="text-sm text-muted-foreground file:mr-3 file:rounded file:border file:border-border file:bg-transparent file:px-3 file:py-1.5 file:text-sm file:text-foreground hover:file:bg-muted"
+            />
+          </div>
+        </div>
+
         {/* Title */}
         <div>
           <label className="mb-1 block text-sm font-medium">Название *</label>
