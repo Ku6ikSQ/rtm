@@ -11,6 +11,7 @@ import { formatDateShort } from '@/utils/formatters'
 import { useAuth } from '@/hooks/useAuth'
 import { ConfirmDialog } from '@/components/common/ConfirmDialog'
 import { ArtistEditModal } from '@/components/artist/ArtistEditModal'
+import { applyServerErrors } from '@/utils/applyServerErrors'
 import type { UserRole, CreateGenreDto, CreatePlatformDto, CreateArtistDto, Artist } from '@/types/entities'
 
 type Tab = 'users' | 'genres' | 'platforms' | 'artists' | 'stats'
@@ -356,7 +357,11 @@ function PlatformsTab() {
       setLogoFile(null)
       setShowCreate(false)
     },
-    onError: (err) => toast.error(err instanceof Error ? err.message : 'Ошибка'),
+    onError: (err) => {
+      if (!applyServerErrors(err, form.setError)) {
+        form.setError('root', { message: err instanceof Error ? err.message : 'Ошибка' })
+      }
+    },
   })
 
   return (
@@ -412,7 +417,7 @@ function PlatformsTab() {
       </div>
 
       {showCreate && (
-        <Modal title="Новая платформа" onClose={() => setShowCreate(false)}>
+        <Modal title="Новая платформа" onClose={() => { setShowCreate(false); form.reset(); setLogoFile(null) }}>
           <form onSubmit={form.handleSubmit((d) => createMutation.mutate({ name: d.name, logoFile: logoFile ?? undefined }))} className="space-y-3">
             <FormField label="Название" error={form.formState.errors.name?.message}>
               <input {...form.register('name')} className={fieldCls} />
@@ -425,7 +430,10 @@ function PlatformsTab() {
                 className="w-full text-sm text-muted-foreground file:mr-3 file:rounded file:border file:border-border file:bg-transparent file:px-3 file:py-1.5 file:text-sm file:text-foreground hover:file:bg-muted"
               />
             </FormField>
-            <ModalActions onCancel={() => setShowCreate(false)} loading={createMutation.isPending} />
+            {form.formState.errors.root && (
+              <p className="text-sm text-destructive">{form.formState.errors.root.message}</p>
+            )}
+            <ModalActions onCancel={() => { setShowCreate(false); form.reset(); setLogoFile(null) }} loading={createMutation.isPending} />
           </form>
         </Modal>
       )}
