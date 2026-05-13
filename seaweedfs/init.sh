@@ -2,10 +2,14 @@
 set -e
 
 echo "Waiting for SeaweedFS filer..."
-until curl -sf "http://seaweedfs:8888/" >/dev/null 2>&1; do
+until curl -s --connect-timeout 2 -o /dev/null "http://seaweedfs:8888/" 2>&1; do
   sleep 3
 done
-echo "Filer is ready"
+echo "Filer is ready, waiting for S3..."
+until curl -s --connect-timeout 2 -o /dev/null "http://seaweedfs:8333/" 2>&1; do
+  sleep 2
+done
+echo "S3 is ready"
 
 cat > /tmp/iam.json << EOF
 {
