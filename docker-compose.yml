@@ -71,28 +71,24 @@ services:
 
   seaweedfs:
     image: chrislusf/seaweedfs:latest
-    entrypoint: ["/bin/sh", "/entrypoint.sh"]
-    environment:
-      STORAGE_ACCESS_KEY: ${STORAGE_ACCESS_KEY}
-      STORAGE_SECRET_KEY: ${STORAGE_SECRET_KEY}
+    command: server -dir=/data -s3 -s3.port=8333 -filer -filer.port=8888
     ports:
       - "8333:8333"
     volumes:
-      - ./seaweedfs/entrypoint.sh:/entrypoint.sh:ro
       - seaweedfs_data:/data
     restart: unless-stopped
 
-  # Одноразовый сервис для создания S3-бакета при первом запуске
+  # Записывает IAM-конфиг в filer и создаёт S3-бакет
   seaweedfs-init:
     image: amazon/aws-cli:latest
+    entrypoint: ["/bin/sh", "/init.sh"]
     environment:
       AWS_ACCESS_KEY_ID: ${STORAGE_ACCESS_KEY}
       AWS_SECRET_ACCESS_KEY: ${STORAGE_SECRET_KEY}
       AWS_DEFAULT_REGION: us-east-1
-    command: >
-      s3api create-bucket
-      --bucket ${STORAGE_BUCKET:-rtm}
-      --endpoint-url http://seaweedfs:8333
+      STORAGE_BUCKET: ${STORAGE_BUCKET:-rtm}
+    volumes:
+      - ./seaweedfs/init.sh:/init.sh:ro
     depends_on:
       - seaweedfs
     restart: "no"
