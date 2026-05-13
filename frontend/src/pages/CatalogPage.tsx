@@ -229,9 +229,29 @@ function FilterChip({ label, onRemove }: { label: string; onRemove: () => void }
   )
 }
 
+function buildPageItems(page: number, totalPages: number): (number | '...')[] {
+  if (totalPages <= 7) return Array.from({ length: totalPages }, (_, i) => i)
+
+  const items: (number | '...')[] = []
+  const SIBLINGS = 1
+
+  const rangeStart = Math.max(1, page - SIBLINGS)
+  const rangeEnd = Math.min(totalPages - 2, page + SIBLINGS)
+
+  items.push(0)
+  if (rangeStart > 1) items.push('...')
+  for (let i = rangeStart; i <= rangeEnd; i++) items.push(i)
+  if (rangeEnd < totalPages - 2) items.push('...')
+  items.push(totalPages - 1)
+
+  return items
+}
+
 function Pagination({ page, totalPages, onChange }: { page: number; totalPages: number; onChange: (p: number) => void }) {
+  const items = buildPageItems(page, totalPages)
+
   return (
-    <div className="mt-6 flex items-center justify-center gap-2">
+    <div className="mt-6 flex items-center justify-center gap-1">
       <button
         onClick={() => onChange(page - 1)}
         disabled={page === 0}
@@ -239,18 +259,24 @@ function Pagination({ page, totalPages, onChange }: { page: number; totalPages: 
       >
         ← Пред
       </button>
-      {Array.from({ length: Math.min(totalPages, 7) }, (_, i) => i).map((i) => (
-        <button
-          key={i}
-          onClick={() => onChange(i)}
-          className={cn(
-            'h-8 w-8 rounded border text-sm',
-            i === page ? 'border-foreground bg-foreground text-background' : 'border-border',
-          )}
-        >
-          {i + 1}
-        </button>
-      ))}
+      {items.map((item, idx) =>
+        item === '...' ? (
+          <span key={`ellipsis-${idx}`} className="flex h-8 w-8 items-center justify-center text-sm text-muted-foreground">
+            …
+          </span>
+        ) : (
+          <button
+            key={item}
+            onClick={() => onChange(item)}
+            className={cn(
+              'h-8 w-8 rounded border text-sm',
+              item === page ? 'border-foreground bg-foreground text-background' : 'border-border hover:border-foreground/50',
+            )}
+          >
+            {item + 1}
+          </button>
+        ),
+      )}
       <button
         onClick={() => onChange(page + 1)}
         disabled={page >= totalPages - 1}
