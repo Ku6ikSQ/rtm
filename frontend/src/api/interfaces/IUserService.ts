@@ -8,4 +8,5 @@ export interface IUserService {
   blockUser(id: string): Promise<User>
   unblockUser(id: string): Promise<User>
   changeRole(id: string, role: UserRole): Promise<User>
+  uploadAvatar(file: File): Promise<string>
 }
