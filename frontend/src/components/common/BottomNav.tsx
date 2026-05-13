@@ -9,7 +9,7 @@ export function BottomNav() {
   const items = [
     { to: '/', icon: Home, label: 'Главная', end: true, show: true },
     { to: '/catalog', icon: Search, label: 'Каталог', show: true },
-    { to: '/album/new', icon: Plus, label: 'Добавить', show: isAuthenticated },
+    { to: '/album/new', icon: Plus, label: 'Добавить', show: hasRole(['ADMIN', 'MODERATOR']) },
     { to: '/profile', icon: User, label: 'Профиль', show: isAuthenticated },
     { to: '/login', icon: LogIn, label: 'Войти', show: !isAuthenticated },
     {
